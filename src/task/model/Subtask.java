@@ -2,13 +2,11 @@ package task.model;
 
 import java.util.Objects;
 
-public class Subtask extends Task {
+public class Subtask extends Task implements StatusChangeable{
     private String epicName;
 
     public Subtask(String name, String description) {
         super(name, description);
-        id = hashCode();
-        status = TASK_STATUS_NEW;
     }
 
     public String getEpicName() {
@@ -33,7 +31,7 @@ public class Subtask extends Task {
         this.epicName = epicName;
     }
 
-    void setStatus(String status) {
+   public void setStatus(String status) {
         this.status = status;
     }
 

@@ -2,7 +2,7 @@ package task.model;
 
 import java.util.Objects;
 
-public abstract class Task {
+public class Task {
     public static final String TASK_STATUS_NEW = "NEW";
     public static final String TASK_STATUS_IN_PROGRESS = "IN PROGRESS";
     public static final String TASK_STATUS_DONE = "DONE";
@@ -15,6 +15,10 @@ public abstract class Task {
         this.name = name;
         this.description = description;
         this.status = TASK_STATUS_NEW;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public int getId() {

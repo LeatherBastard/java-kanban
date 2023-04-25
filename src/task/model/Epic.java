@@ -1,19 +1,15 @@
 package task.model;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class Epic extends Task {
     private ArrayList<Subtask> subtasks;
 
-    public Epic(String name, String description, ArrayList<Subtask> subtasks) {
+    public Epic(String name, String description) {
         super(name, description);
-        id = hashCode();
         this.subtasks = new ArrayList<>();
-        if (subtasks != null) {
-            setSubtasks(subtasks);
-        }
-        checkStatus();
     }
 
     public void addSubtask(Subtask subtask) {
@@ -22,16 +18,16 @@ public class Epic extends Task {
         checkStatus();
     }
 
-    public Subtask getSubtask(String name) {
+    private Subtask getSubtask(String name) {
         for (Subtask subtask : subtasks) {
             if (subtask.name.equals(name)) {
                 return subtask;
             }
         }
-        return null;
+        return new Subtask("", "");
     }
 
-    public ArrayList<Subtask> getSubtasks() {
+    public List<Subtask> getSubtasks() {
         return new ArrayList<>(subtasks);
     }
 
@@ -60,18 +56,17 @@ public class Epic extends Task {
     }
 
     private boolean isAllSubtasksNew() {
-        int count = 0;
-        for (int i = 0; i < subtasks.size(); i++) {
-            if (subtasks.get(i).status.equals(TASK_STATUS_NEW))
-                count++;
-        }
-        return count == subtasks.size();
+        return isAllSubtasksHaveStatus(TASK_STATUS_NEW);
     }
 
     private boolean isAllSubtasksDone() {
+        return isAllSubtasksHaveStatus(TASK_STATUS_DONE);
+    }
+
+    private boolean isAllSubtasksHaveStatus(String status) {
         int count = 0;
-        for (int i = 0; i < subtasks.size(); i++) {
-            if (subtasks.get(i).status.equals(TASK_STATUS_DONE))
+        for (Subtask subtask : subtasks) {
+            if (subtask.status.equals(status))
                 count++;
         }
         return count == subtasks.size();
@@ -87,7 +82,7 @@ public class Epic extends Task {
         checkStatus();
     }
 
-    public void setSubtasks(ArrayList<Subtask> subtasks) {
+    public void setSubtasks(List<Subtask> subtasks) {
         for (int i = 0; i < subtasks.size(); i++) {
             this.subtasks.add(subtasks.get(i));
             this.subtasks.get(i).setEpicName(this.name);
