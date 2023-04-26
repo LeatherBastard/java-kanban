@@ -44,7 +44,7 @@ public class Epic extends Task {
         return false;
     }
 
-    private void checkStatus() {
+    public void checkStatus() {
         if (subtasks.isEmpty() || isAllSubtasksNew()) status = TASK_STATUS_NEW;
         else if (isAllSubtasksDone()) status = TASK_STATUS_DONE;
         else status = TASK_STATUS_IN_PROGRESS;
