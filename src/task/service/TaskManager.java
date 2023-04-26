@@ -117,7 +117,10 @@ public class TaskManager {
     }
 
     public void updateSimpleTask(SimpleTask simpleTask) {
-        simpleTasks.put(simpleTask.getId(), simpleTask);
+        if (simpleTasks.containsKey(simpleTask.getId()))
+            simpleTasks.put(simpleTask.getId(), simpleTask);
+        else
+            addSimpleTask(simpleTask);
     }
 
     public void updateSubtask(Subtask subtask) {
@@ -131,8 +134,11 @@ public class TaskManager {
                 Epic newEpic = getEpicTaskByName(subtask.getName());
                 newEpic.addSubtask(subtask);
             }
+            subtasks.put(subtask.getId(), subtask);
+        } else {
+            addSubtask(subtask);
         }
-        subtasks.put(subtask.getId(), subtask);
+
     }
 
     public void updateEpicTask(Epic epic) {
@@ -141,7 +147,10 @@ public class TaskManager {
             if (!epic.getName().equals(oldEpic.getName())) {
                 removeEpicTaskById(epic.getId());
             }
+            epicTasks.put(epic.getId(), epic);
+        } else {
+            addEpicTask(epic);
         }
-        epicTasks.put(epic.getId(), epic);
+
     }
 }
