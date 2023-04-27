@@ -13,26 +13,13 @@ public class Epic extends Task {
     }
 
     public void addSubtask(Subtask subtask) {
-        subtask.setEpicName(name);
+        subtask.setEpicOwnerId(id);
         subtasks.add(subtask);
         checkStatus();
     }
 
-    private Subtask getSubtask(String name) {
-        for (Subtask subtask : subtasks) {
-            if (subtask.name.equals(name)) {
-                return subtask;
-            }
-        }
-        return new Subtask("", "");
-    }
-
     public List<Subtask> getSubtasks() {
         return new ArrayList<>(subtasks);
-    }
-
-    public String getSubtaskStatus(String subtaskName) {
-        return getSubtask(subtaskName).status;
     }
 
     @Override
@@ -72,9 +59,9 @@ public class Epic extends Task {
         return count == subtasks.size();
     }
 
-    public void removeSubtask(String name) {
+    public void removeSubtask(int id) {
         for (Subtask subtask : subtasks) {
-            if (subtask.name.equals(name)) {
+            if (subtask.id == id) {
                 subtasks.remove(subtask);
                 break;
             }
@@ -85,14 +72,8 @@ public class Epic extends Task {
     public void setSubtasks(List<Subtask> subtasks) {
         for (int i = 0; i < subtasks.size(); i++) {
             this.subtasks.add(subtasks.get(i));
-            this.subtasks.get(i).setEpicName(this.name);
+            this.subtasks.get(i).setEpicOwnerId(id);
         }
-        checkStatus();
-    }
-
-    public void setSubtaskStatus(String subtaskName, String status) {
-        Subtask subtask = getSubtask(subtaskName);
-        subtask.setStatus(status);
         checkStatus();
     }
 
