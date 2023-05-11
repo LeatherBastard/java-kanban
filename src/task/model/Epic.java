@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static task.model.TaskStatus.*;
+
 public class Epic extends Task {
     private ArrayList<Subtask> subtasks;
 
@@ -32,9 +34,9 @@ public class Epic extends Task {
     }
 
     public void checkStatus() {
-        if (subtasks.isEmpty() || isAllSubtasksNew()) status = TASK_STATUS_NEW;
-        else if (isAllSubtasksDone()) status = TASK_STATUS_DONE;
-        else status = TASK_STATUS_IN_PROGRESS;
+        if (subtasks.isEmpty() || isAllSubtasksNew()) status = NEW;
+        else if (isAllSubtasksDone()) status = DONE;
+        else status = IN_PROGRESS;
     }
 
     @Override
@@ -43,14 +45,14 @@ public class Epic extends Task {
     }
 
     private boolean isAllSubtasksNew() {
-        return isAllSubtasksHaveStatus(TASK_STATUS_NEW);
+        return isAllSubtasksHaveStatus(NEW);
     }
 
     private boolean isAllSubtasksDone() {
-        return isAllSubtasksHaveStatus(TASK_STATUS_DONE);
+        return isAllSubtasksHaveStatus(DONE);
     }
 
-    private boolean isAllSubtasksHaveStatus(String status) {
+    private boolean isAllSubtasksHaveStatus(TaskStatus status) {
         int count = 0;
         for (Subtask subtask : subtasks) {
             if (subtask.status.equals(status))

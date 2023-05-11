@@ -1,29 +1,37 @@
-package task.service;
+package task.service.managers.task;
 
 import task.model.Epic;
 import task.model.SimpleTask;
 import task.model.Subtask;
+import task.model.Task;
+import task.service.managers.Managers;
+import task.service.managers.history.HistoryManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class TaskManager {
-    private HashMap<Integer, SimpleTask> simpleTasks;
-    private HashMap<Integer, Epic> epicTasks;
-    private HashMap<Integer, Subtask> subtasks;
+public class InMemoryTaskManager implements TaskManager {
 
-    public TaskManager() {
+    private final HashMap<Integer, SimpleTask> simpleTasks;
+    private final HashMap<Integer, Epic> epicTasks;
+    private final HashMap<Integer, Subtask> subtasks;
+    private final HistoryManager historyManager;
+
+    public InMemoryTaskManager() {
         simpleTasks = new HashMap<>();
         epicTasks = new HashMap<>();
         subtasks = new HashMap<>();
+        historyManager = Managers.getDefaultHistory();
     }
 
+    @Override
     public void addSimpleTask(SimpleTask simpleTask) {
         simpleTask.setId(simpleTask.hashCode());
         simpleTasks.put(simpleTask.getId(), simpleTask);
     }
 
+    @Override
     public void addSubtask(Subtask subtask) {
         subtask.setId(subtask.hashCode());
         Epic epic = getEpicTaskById(subtask.getEpicOwnerId());
@@ -31,31 +39,45 @@ public class TaskManager {
         subtasks.put(subtask.getId(), subtask);
     }
 
+    @Override
     public void addEpicTask(Epic epic) {
         epic.setId(epic.hashCode());
         List<Subtask> epicSubtasks = epic.getSubtasks();
+        epicTasks.put(epic.getId(), epic);
         for (Subtask subtask : epicSubtasks) {
+            subtask.setEpicOwnerId(epic.getId());
             addSubtask(subtask);
         }
-        epicTasks.put(epic.getId(), epic);
     }
 
+
+    @Override
     public SimpleTask getSimpleTaskById(int id) {
-        return simpleTasks.get(id);
+        SimpleTask simpleTask = simpleTasks.get(id);
+        historyManager.add(simpleTask);
+        return simpleTask;
     }
 
+    @Override
     public Subtask getSubtaskById(int id) {
-        return subtasks.get(id);
+        Subtask subtask = subtasks.get(id);
+        historyManager.add(subtask);
+        return subtask;
     }
 
+    @Override
     public Epic getEpicTaskById(int id) {
-        return epicTasks.get(id);
+        Epic epic = epicTasks.get(id);
+        historyManager.add(epic);
+        return epic;
     }
 
+    @Override
     public List<SimpleTask> getAllSimpleTasks() {
         return new ArrayList<>(simpleTasks.values());
     }
 
+    @Override
     public List<Subtask> getAllSubtasks() {
         return new ArrayList<>(subtasks.values());
     }
@@ -71,14 +93,22 @@ public class TaskManager {
         return epicSubtasks;
     }
 
+    @Override
     public List<Epic> getAllEpicTasks() {
         return new ArrayList<>(epicTasks.values());
     }
 
+    @Override
+    public List<Task> getHistory() {
+        return historyManager.getHistory();
+    }
+
+    @Override
     public void removeSimpleTaskById(int id) {
         simpleTasks.remove(id);
     }
 
+    @Override
     public void removeSubtaskById(int id) {
         Subtask subtask = getSubtaskById(id);
         Epic epic = getEpicTaskById(subtask.getEpicOwnerId());
@@ -86,6 +116,7 @@ public class TaskManager {
         subtasks.remove(id);
     }
 
+    @Override
     public void removeEpicTaskById(int id) {
         Epic epic = epicTasks.get(id);
         List<Subtask> epicSubtasks = epic.getSubtasks();
@@ -95,10 +126,12 @@ public class TaskManager {
         epicTasks.remove(id);
     }
 
+    @Override
     public void removeAllSimpleTasks() {
         simpleTasks.clear();
     }
 
+    @Override
     public void removeAllSubtasks() {
         subtasks.clear();
         for (Epic epic : epicTasks.values()) {
@@ -107,11 +140,13 @@ public class TaskManager {
         }
     }
 
+    @Override
     public void removeAllEpicTasks() {
         epicTasks.clear();
         removeAllSubtasks();
     }
 
+    @Override
     public void updateSimpleTask(SimpleTask simpleTask) {
         if (simpleTasks.containsKey(simpleTask.getId()))
             simpleTasks.put(simpleTask.getId(), simpleTask);
@@ -119,6 +154,7 @@ public class TaskManager {
             addSimpleTask(simpleTask);
     }
 
+    @Override
     public void updateSubtask(Subtask subtask) {
         if (subtasks.containsKey(subtask.getId())) {
             Epic epic = getEpicTaskById(subtask.getEpicOwnerId());
@@ -130,6 +166,7 @@ public class TaskManager {
         }
     }
 
+    @Override
     public void updateEpicTask(Epic epic) {
         if (epicTasks.containsKey(epic.getId())) {
             List<Subtask> oldEpicSubtasks = getEpicTaskById(epic.getId()).getSubtasks();

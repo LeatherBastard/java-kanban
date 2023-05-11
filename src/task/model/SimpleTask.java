@@ -6,7 +6,7 @@ public class SimpleTask extends Task implements StatusChangeable {
         super(name, description);
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TaskStatus status) {
         this.status = status;
     }
 

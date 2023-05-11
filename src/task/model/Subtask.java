@@ -27,11 +27,11 @@ public class Subtask extends Task implements StatusChangeable {
         return super.hashCode() + Objects.hash(epicOwnerId);
     }
 
-   public void setEpicOwnerId(int epicOwnerId) {
+    public void setEpicOwnerId(int epicOwnerId) {
         this.epicOwnerId = epicOwnerId;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TaskStatus status) {
         this.status = status;
     }
 

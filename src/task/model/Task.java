@@ -2,19 +2,19 @@ package task.model;
 
 import java.util.Objects;
 
+import static task.model.TaskStatus.*;
+
 public class Task {
-    public static final String TASK_STATUS_NEW = "NEW";
-    public static final String TASK_STATUS_IN_PROGRESS = "IN PROGRESS";
-    public static final String TASK_STATUS_DONE = "DONE";
+
     protected int id;
     protected String name;
     protected String description;
-    protected String status;
+    protected TaskStatus status;
 
     protected Task(String name, String description) {
         this.name = name;
         this.description = description;
-        this.status = TASK_STATUS_NEW;
+        this.status = NEW;
     }
 
     public void setId(int id) {
@@ -41,10 +41,9 @@ public class Task {
         this.description = description;
     }
 
-    public String getStatus() {
+    public TaskStatus getStatus() {
         return status;
     }
-
 
     @Override
     public boolean equals(Object obj) {
@@ -59,6 +58,5 @@ public class Task {
     public int hashCode() {
         return Objects.hash(name, description, status);
     }
-
 
 }
