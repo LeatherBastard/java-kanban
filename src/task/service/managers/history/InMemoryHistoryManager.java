@@ -10,10 +10,6 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public void add(Task task) {
         if (task != null) {
-            if (taskHistory.occurrences.containsKey(task.getId())) {
-                Node<Task> repeatingNode =  taskHistory.occurrences.get(task.getId());
-                taskHistory.removeNode(repeatingNode);
-            }
             taskHistory.linkLast(task);
         }
     }
@@ -33,7 +29,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         private final Map<Integer, Node<T>> occurrences = new HashMap<>();
         private Node<T> head;
         private Node<T> tail;
-
         private int size;
 
         public CustomLinkedList() {
@@ -55,9 +50,9 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
 
         public void linkLast(T element) {
-
-
-
+            Node<T> repeatingNode = occurrences.getOrDefault(element.getId(), null);
+            if (repeatingNode != null)
+                removeNode(repeatingNode);
             final Node<T> newNode = new Node<>(tail, element, null);
             occurrences.put(element.getId(), newNode);
             if (tail == null)
@@ -84,7 +79,6 @@ public class InMemoryHistoryManager implements HistoryManager {
                 nextNode.previous = previousNode;
                 node.next = null;
             }
-
             node.data = null;
             size--;
             return element;
