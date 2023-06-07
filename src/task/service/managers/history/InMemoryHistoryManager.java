@@ -5,20 +5,22 @@ import task.model.Task;
 import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private CustomLinkedList<Task> taskHistory;
-
-    public InMemoryHistoryManager() {
-        taskHistory = new CustomLinkedList<>();
-    }
+    private final CustomLinkedList<Task> taskHistory = new CustomLinkedList<>();
 
     @Override
     public void add(Task task) {
         if (task != null) {
-            if (taskHistory.size() >= 10) {
-                remove(0);
+            if (taskHistory.occurrences.containsKey(task.getId())) {
+                Node<Task> repeatingNode =  taskHistory.occurrences.get(task.getId());
+                taskHistory.removeNode(repeatingNode);
             }
             taskHistory.linkLast(task);
         }
+    }
+
+    @Override
+    public List<Task> getHistory() {
+        return taskHistory.getTasks();
     }
 
     @Override
@@ -27,20 +29,14 @@ public class InMemoryHistoryManager implements HistoryManager {
         taskHistory.removeNode(nodeByID);
     }
 
-    @Override
-    public List<Task> getHistory() {
-        return taskHistory.getTasks();
-    }
-
-    private class CustomLinkedList<T extends Task> {
-        private Map<Integer, Node<T>> occurrences;
+    private static class CustomLinkedList<T extends Task> {
+        private final Map<Integer, Node<T>> occurrences = new HashMap<>();
         private Node<T> head;
         private Node<T> tail;
 
         private int size;
 
         public CustomLinkedList() {
-            occurrences = new HashMap<>();
             size = 0;
         }
 
@@ -59,25 +55,23 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
 
         public void linkLast(T element) {
-            if (occurrences.containsKey(element.getId())) {
-                Node<T> repeatingNode = occurrences.get(element.getId());
-                removeNode(repeatingNode);
-            }
-            final Node<T> t = tail;
-            final Node<T> newNode = new Node<>(t, element, null);
+
+
+
+            final Node<T> newNode = new Node<>(tail, element, null);
             occurrences.put(element.getId(), newNode);
-            tail = newNode;
-            if (t == null)
+            if (tail == null)
                 head = newNode;
             else
-                t.next = newNode;
+                tail.next = newNode;
+            tail = newNode;
             size++;
         }
 
         public T removeNode(Node<T> node) {
             T element = node.data;
-            Node<T> previousNode = node.previous;
-            Node<T> nextNode = node.next;
+            final Node<T> previousNode = node.previous;
+            final Node<T> nextNode = node.next;
             if (node.previous == null) {
                 head = nextNode;
             } else {
@@ -90,7 +84,7 @@ public class InMemoryHistoryManager implements HistoryManager {
                 nextNode.previous = previousNode;
                 node.next = null;
             }
-            occurrences.remove(node.data.getId());
+
             node.data = null;
             size--;
             return element;
