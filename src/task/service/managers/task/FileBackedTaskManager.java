@@ -9,12 +9,35 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
-    private static final String NULL_VALUE_MESSAGE = "Path has null value!";
+    private static final String NEW_LINE_CHARACTER = "\n";
+    private static final String CSV_FILE_HEADER = "id,type,name,status,description,epic" + NEW_LINE_CHARACTER;
+    private static final int CSV_FILE_DATA_START = 1;
     private static final String TASKS_PATH = "tasks.csv";
+
+
+    @Override
+    public void addSimpleTask(SimpleTask simpleTask) {
+        super.addSimpleTask(simpleTask);
+        save();
+    }
+
+    @Override
+    public void addSubtask(Subtask subtask) {
+        super.addSubtask(subtask);
+        save();
+    }
+
+    @Override
+    public void addEpicTask(Epic epic) {
+        super.addEpicTask(epic);
+        save();
+    }
 
     public Task fromString(String string) {
         Task result;
@@ -44,6 +67,54 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         return result;
     }
 
+    @Override
+    public SimpleTask getSimpleTaskById(int id) {
+        save();
+        return super.getSimpleTaskById(id);
+    }
+
+    @Override
+    public Subtask getSubtaskById(int id) {
+        save();
+        return super.getSubtaskById(id);
+    }
+
+    @Override
+    public Epic getEpicTaskById(int id) {
+        save();
+        return super.getEpicTaskById(id);
+    }
+
+    @Override
+    public List<SimpleTask> getAllSimpleTasks() {
+        save();
+        return super.getAllSimpleTasks();
+    }
+
+    @Override
+    public List<Subtask> getAllSubtasks() {
+        save();
+        return super.getAllSubtasks();
+    }
+
+    @Override
+    public List<Subtask> getAllSubtasksForEpic(Epic epic) {
+        save();
+        return super.getAllSubtasksForEpic(epic);
+    }
+
+    @Override
+    public List<Epic> getAllEpicTasks() {
+        save();
+        return super.getAllEpicTasks();
+    }
+
+    @Override
+    public List<Task> getHistory() {
+        save();
+        return super.getHistory();
+    }
+
     public static List<Integer> historyFromString(String value) {
         List<Integer> result = new ArrayList<>();
         String[] historyValues = value.split(",");
@@ -53,105 +124,134 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         return result;
     }
 
-
     public static String historyToString(HistoryManager manager) {
-        String result = "";
-        for (Task task : manager.getHistory()) { //Неправильно ставит запятые
-            result = result + task.getId();
-            result = result + ",";
+        StringBuilder result = new StringBuilder();
+        List<Task> history = manager.getHistory();
+        for (int i = 0; i < history.size(); i++) {
+            result.append(history.get(i).getId());
+            if (i != history.size() - 1)
+                result.append(",");
         }
-        return result;
+        return result.toString();
     }
 
-    private static FileBackedTaskManager loadFromFile(File file) {
+    public static FileBackedTaskManager loadFromFile(File file) throws IOException {
         FileBackedTaskManager manager = new FileBackedTaskManager();
+        List<String> fileData;
 
-        List<String> fileData = new ArrayList<>();
-        if (file == null) {
-            throw new IllegalArgumentException(NULL_VALUE_MESSAGE);
-        } else {
-            try {
-                fileData = Files.readAllLines(file.toPath());
-            } catch (IOException e) {
-                //Обработать исключения
-            }
-
-
-            if (fileData.size() > 1) {
-                String data;
-                int i;
-                for (i = 1, data = fileData.get(i); !data.isEmpty(); i++, data = fileData.get(i)) {
-                    String[] taskInfo = data.split(",");
-                    Task task = manager.fromString(data);
-                    switch (TaskType.valueOf(taskInfo[1])) {
-                        case TASK:
-                            SimpleTask simpleTask = (SimpleTask) task;
-                            manager.simpleTasks.put(simpleTask.getId(), simpleTask);
-                            break;
-                        case EPIC:
-                            Epic epic = (Epic) task;
-                            manager.epicTasks.put(epic.getId(), epic);
-                            break;
-                        case SUBTASK:
-                            Subtask subtask = (Subtask) task;
-                            manager.subtasks.put(subtask.getId(), subtask);
-                            break;
-                    }
+        fileData = Files.readAllLines(file.toPath());
+        if (fileData.size() > CSV_FILE_DATA_START) {
+            String data;
+            int i;
+            for (i = CSV_FILE_DATA_START, data = fileData.get(i); !data.isEmpty(); i++, data = fileData.get(i)) {
+                String[] taskInfo = data.split(",");
+                Task task = manager.fromString(data);
+                switch (TaskType.valueOf(taskInfo[1])) {
+                    case TASK:
+                        SimpleTask simpleTask = (SimpleTask) task;
+                        manager.simpleTasks.put(simpleTask.getId(), simpleTask);
+                        break;
+                    case EPIC:
+                        Epic epic = (Epic) task;
+                        manager.epicTasks.put(epic.getId(), epic);
+                        break;
+                    case SUBTASK:
+                        Subtask subtask = (Subtask) task;
+                        manager.addSubtask(subtask);
+                        break;
                 }
-                i++;
+            }
+            i++;
+            if (i < fileData.size()) {
                 List<Integer> history = historyFromString(fileData.get(i));
-                // Убрать повторяющийся код
+                Map<Integer, Task> allTasks = new HashMap<>();
+                allTasks.putAll(manager.simpleTasks);
+                allTasks.putAll(manager.epicTasks);
+                allTasks.putAll(manager.subtasks);
                 for (Integer key : history) {
                     Task task;
-                    boolean taskFound = false;
-                    while (!taskFound) {
-                        task = manager.simpleTasks.get(key);
-                        if (task != null) {
-                            manager.historyManager.add(task);
-                            taskFound = true;
-                        }
-                        task = manager.epicTasks.get(key);
-                        if (task != null) {
-                            manager.historyManager.add(task);
-                            taskFound = true;
-                        }
-                        task = manager.subtasks.get(key);
-                        if (task != null) {
-                            manager.historyManager.add(task);
-                            taskFound = true;
-                        }
+                    task = allTasks.get(key);
+                    if (task != null) {
+                        manager.historyManager.add(task);
                     }
                 }
-            } else {
-                // Что делать, в случае, если файл не пуст, но и не досточно большой для обработки?
             }
-
         }
+
         return manager;
+    }
+
+    @Override
+    public void removeSimpleTaskById(int id) {
+        super.removeSimpleTaskById(id);
+        save();
+    }
+
+    @Override
+    public void removeSubtaskById(int id) {
+        super.removeSubtaskById(id);
+        save();
+    }
+
+    @Override
+    public void removeEpicTaskById(int id) {
+        super.removeEpicTaskById(id);
+        save();
+    }
+
+    @Override
+    public void removeAllSimpleTasks() {
+        super.removeAllSimpleTasks();
+        save();
+    }
+
+    @Override
+    public void removeAllSubtasks() {
+        super.removeAllSubtasks();
+        save();
+    }
+
+    @Override
+    public void removeAllEpicTasks() {
+        super.removeAllEpicTasks();
+        save();
     }
 
     private void save() throws ManagerSaveException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(TASKS_PATH))) {
-            // Убрать повторяющийся код
-            for (Integer key : simpleTasks.keySet()) {
-                SimpleTask simpleTask = simpleTasks.get(key);
-                writer.write(simpleTask.toString() + "\n");
+            writer.write(CSV_FILE_HEADER);
+            for (SimpleTask task : simpleTasks.values()) {
+                writer.write(task.toString() + NEW_LINE_CHARACTER);
             }
-            for (Integer key : epicTasks.keySet()) {
-                Epic epic = epicTasks.get(key);
-                writer.write(epic.toString() + "\n");
+            for (Epic epic : epicTasks.values()) {
+                writer.write(epic.toString() + NEW_LINE_CHARACTER);
             }
-            for (Integer key : subtasks.keySet()) {
-                Subtask subtask = subtasks.get(key);
-                writer.write(subtask.toString() + "\n");
+            for (Subtask subtask : subtasks.values()) {
+                writer.write(subtask.toString() + NEW_LINE_CHARACTER);
             }
-            writer.write("\n");
+            writer.write(NEW_LINE_CHARACTER);
             writer.write(historyToString(historyManager));
         } catch (IOException e) {
             throw new ManagerSaveException(e);
         }
-
     }
 
+    @Override
+    public void updateSimpleTask(SimpleTask simpleTask) {
+        super.updateSimpleTask(simpleTask);
+        save();
+    }
+
+    @Override
+    public void updateSubtask(Subtask subtask) {
+        super.updateSubtask(subtask);
+        save();
+    }
+
+    @Override
+    public void updateEpicTask(Epic epic) {
+        super.updateEpicTask(epic);
+        save();
+    }
 
 }

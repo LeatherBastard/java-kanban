@@ -34,11 +34,11 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void addSubtask(Subtask subtask) {
         Epic epic = getEpicTaskById(subtask.getEpicOwnerId());
-        if (!epic.getSubtasks().contains(subtask)) {
-            subtask.setId(subtask.hashCode());
+        if (epic!=null&&!epic.getSubtasks().contains(subtask)) {
             epic.addSubtask(subtask);
-            subtasks.put(subtask.getId(), subtask);
         }
+        subtask.setId(subtask.hashCode());
+        subtasks.put(subtask.getId(), subtask);
     }
 
     @Override
