@@ -37,12 +37,7 @@ public class Subtask extends Task implements StatusChangeable {
 
     @Override
     public String toString() {
-        return "Subtask{" +
-                "id='" + id + "', " +
-                "name='" + name + "', " +
-                "description='" + description + "', " +
-                "status='" + status + "', " +
-                "epicOwnerId='" + epicOwnerId + "'" +
-                "}";
+        return id + ",SUBTASK," + name + "," + status + "," + description + "," + epicOwnerId;
     }
+
 }

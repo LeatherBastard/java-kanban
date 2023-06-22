@@ -12,11 +12,6 @@ public class SimpleTask extends Task implements StatusChangeable {
 
     @Override
     public String toString() {
-        return "SimpleTask{" +
-                "id='" + id + "', " +
-                "name='" + name + "', " +
-                "description='" + description + "', " +
-                "status='" + status + "', " +
-                "}";
+        return id + ",TASK," + name + "," + status + "," + description + ",";
     }
 }
