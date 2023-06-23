@@ -9,13 +9,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
-    private static final String NEW_LINE_CHARACTER = "\n";
+    private static final String NEW_LINE_CHARACTER = System.lineSeparator();
     private static final String CSV_FILE_HEADER = "id,type,name,status,description,epic" + NEW_LINE_CHARACTER;
     private static final int CSV_FILE_DATA_START = 1;
     private static final String TASKS_PATH = "tasks.csv";
@@ -164,16 +162,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             i++;
             if (i < fileData.size()) {
                 List<Integer> history = historyFromString(fileData.get(i));
-                Map<Integer, Task> allTasks = new HashMap<>();
-                allTasks.putAll(manager.simpleTasks);
-                allTasks.putAll(manager.epicTasks);
-                allTasks.putAll(manager.subtasks);
                 for (Integer key : history) {
-                    Task task;
-                    task = allTasks.get(key);
-                    if (task != null) {
-                        manager.historyManager.add(task);
+                    Task task = manager.simpleTasks.get(key);
+                    if (task == null) {
+                        task = manager.epicTasks.get(key);
+                        if (task == null) {
+                            task = manager.subtasks.get(key);
+                        }
                     }
+                    manager.historyManager.add(task);
                 }
             }
         }
