@@ -22,6 +22,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public void remove(int id) {
         final Node<Task> nodeByID = taskHistory.occurrences.remove(id);
+        if(nodeByID!=null)
         taskHistory.removeNode(nodeByID);
     }
 
@@ -83,5 +84,6 @@ public class InMemoryHistoryManager implements HistoryManager {
             size--;
             return element;
         }
+
     }
 }
