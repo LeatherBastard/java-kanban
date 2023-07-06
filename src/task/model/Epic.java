@@ -45,7 +45,7 @@ public class Epic extends Task {
     public void calculateTime() {
         if (startTime != null && duration != null) {
             startTime = subtasks.stream().min(Comparator.comparing(subtask -> subtask.startTime)).get().startTime;
-            endTime = subtasks.stream().max(Comparator.comparing(subtask -> subtask.startTime)).get().getEndTime();
+            endTime = subtasks.stream().max(Comparator.comparing(subtask -> subtask.getEndTime())).get().getEndTime();
             duration = subtasks.stream().map(subtask -> subtask.duration).reduce(Duration.ZERO, Duration::plus);
         } else {
             startTime = LocalDateTime.now();
