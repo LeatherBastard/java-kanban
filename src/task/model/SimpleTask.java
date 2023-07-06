@@ -1,9 +1,22 @@
 package task.model;
 
-public class SimpleTask extends Task implements StatusChangeable {
+import java.time.Duration;
+import java.time.LocalDateTime;
+
+public class SimpleTask extends Task implements StatusChangeable, TimeChangeable {
 
     public SimpleTask(String name, String description) {
         super(name, description);
+    }
+
+    @Override
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    @Override
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
     }
 
     public void setStatus(TaskStatus status) {

@@ -1,5 +1,7 @@
 package task.model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 import static task.model.TaskStatus.*;
@@ -10,6 +12,11 @@ public class Task {
     protected String name;
     protected String description;
     protected TaskStatus status;
+
+    protected Duration duration;
+
+    protected LocalDateTime startTime;
+
 
     protected Task(String name, String description) {
         this.name = name;
@@ -29,21 +36,34 @@ public class Task {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public TaskStatus getStatus() {
+        return status;
+    }
+
+    public LocalDateTime getEndTime() {
+        return startTime.plus(duration);
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
     }
 
     public String getDescription() {
         return description;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public TaskStatus getStatus() {
-        return status;
-    }
 
     @Override
     public boolean equals(Object obj) {
@@ -58,5 +78,4 @@ public class Task {
     public int hashCode() {
         return Objects.hash(name, description, status);
     }
-
 }

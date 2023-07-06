@@ -1,12 +1,14 @@
 package task.model;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
 
 import static task.model.TaskStatus.*;
 
 public class Epic extends Task {
+    private LocalDateTime endTime;
+
     private ArrayList<Subtask> subtasks;
 
     public Epic(String name, String description) {
@@ -18,6 +20,7 @@ public class Epic extends Task {
         subtask.setEpicOwnerId(id);
         subtasks.add(subtask);
         checkStatus();
+        calculateTime();
     }
 
     public List<Subtask> getSubtasks() {
@@ -37,6 +40,17 @@ public class Epic extends Task {
         if (subtasks.isEmpty() || isAllSubtasksNew()) status = NEW;
         else if (isAllSubtasksDone()) status = DONE;
         else status = IN_PROGRESS;
+    }
+
+    public void calculateTime() {
+        startTime = subtasks.stream().min(Comparator.comparing(subtask -> subtask.startTime)).get().startTime;
+        endTime = subtasks.stream().max(Comparator.comparing(subtask -> subtask.startTime)).get().getEndTime();
+        duration = subtasks.stream().map(subtask -> subtask.duration).reduce(Duration.ZERO, Duration::plus);
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        return endTime;
     }
 
     @Override
@@ -69,6 +83,7 @@ public class Epic extends Task {
             }
         }
         checkStatus();
+        calculateTime();
     }
 
     public void setSubtasks(List<Subtask> subtasks) {
@@ -77,6 +92,7 @@ public class Epic extends Task {
             this.subtasks.get(i).setEpicOwnerId(id);
         }
         checkStatus();
+        calculateTime();
     }
 
     @Override
