@@ -19,11 +19,15 @@ public class InMemoryHistoryManager implements HistoryManager {
         return taskHistory.getTasks();
     }
 
+    public void clearHistory() {
+        taskHistory.clear();
+    }
+
     @Override
     public void remove(int id) {
         final Node<Task> nodeByID = taskHistory.occurrences.remove(id);
-        if(nodeByID!=null)
-        taskHistory.removeNode(nodeByID);
+        if (nodeByID != null)
+            taskHistory.removeNode(nodeByID);
     }
 
     private static class CustomLinkedList<T extends Task> {
@@ -33,6 +37,18 @@ public class InMemoryHistoryManager implements HistoryManager {
         private int size;
 
         public CustomLinkedList() {
+            size = 0;
+        }
+
+        public void clear() {
+            for (Node<T> x = head; x != null; ) {
+                Node<T> next = x.next;
+                x.data = null;
+                x.next = null;
+                x.previous = null;
+                x = next;
+            }
+            head = tail = null;
             size = 0;
         }
 

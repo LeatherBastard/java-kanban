@@ -16,7 +16,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     private static final String NEW_LINE_CHARACTER = System.lineSeparator();
     private static final String CSV_FILE_HEADER = "id,type,name,status,description,epic" + NEW_LINE_CHARACTER;
     private static final int CSV_FILE_DATA_START = 1;
-    private static final String TASKS_PATH = "tasks.csv";
+    public static final String TASKS_PATH = "tasks.csv";
 
 
     @Override
@@ -37,7 +37,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         save();
     }
 
-    public Task fromString(String string) {
+    private Task fromString(String string) {
         Task result;
         String[] taskInfo = string.split(",");
         switch (TaskType.valueOf(taskInfo[1])) {
@@ -96,12 +96,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     @Override
-    public List<Subtask> getAllSubtasksForEpic(Epic epic) {
-        save();
-        return super.getAllSubtasksForEpic(epic);
-    }
-
-    @Override
     public List<Epic> getAllEpicTasks() {
         save();
         return super.getAllEpicTasks();
@@ -136,7 +130,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     public static FileBackedTaskManager loadFromFile(File file) throws IOException {
         FileBackedTaskManager manager = new FileBackedTaskManager();
         List<String> fileData;
-
         fileData = Files.readAllLines(file.toPath());
         if (fileData.size() > CSV_FILE_DATA_START) {
             String data;

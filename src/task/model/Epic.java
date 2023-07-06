@@ -21,7 +21,7 @@ public class Epic extends Task {
     }
 
     public List<Subtask> getSubtasks() {
-        return new ArrayList<>(subtasks);
+        return subtasks;
     }
 
     @Override
@@ -83,7 +83,6 @@ public class Epic extends Task {
     public String toString() {
         return id + ",EPIC," + name + "," + status + "," + description + ",";
     }
-
 
 
 }
