@@ -8,13 +8,17 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static task.model.Task.formatter;
 
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
     private static final String NEW_LINE_CHARACTER = System.lineSeparator();
-    private static final String CSV_FILE_HEADER = "id,type,name,status,description,epic" + NEW_LINE_CHARACTER;
+    private static final String CSV_FILE_HEADER = "id,type,name,status,description,duration,startTime,epic" + NEW_LINE_CHARACTER;
     private static final int CSV_FILE_DATA_START = 1;
     public static final String TASKS_PATH = "tasks.csv";
 
@@ -45,17 +49,22 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                 SimpleTask simpleTask = new SimpleTask(taskInfo[2], taskInfo[4]);
                 simpleTask.setId(Integer.parseInt(taskInfo[0]));
                 simpleTask.setStatus(TaskStatus.valueOf(taskInfo[3]));
+                simpleTask.setDuration(Duration.ofMinutes(Integer.parseInt(taskInfo[5])));
+                simpleTask.setStartTime(LocalDateTime.parse(taskInfo[6], formatter));
                 result = simpleTask;
                 break;
             case EPIC:
                 Epic epic = new Epic(taskInfo[2], taskInfo[4]);
                 epic.setId(Integer.parseInt(taskInfo[0]));
+                epic.calculateTime();
                 result = epic;
                 break;
             case SUBTASK:
                 Subtask subtask = new Subtask(taskInfo[2], taskInfo[4]);
                 subtask.setId(Integer.parseInt(taskInfo[0]));
                 subtask.setStatus(TaskStatus.valueOf(taskInfo[3]));
+                subtask.setDuration(Duration.ofMinutes(Integer.parseInt(taskInfo[5])));
+                subtask.setStartTime(LocalDateTime.parse(taskInfo[6], formatter));
                 subtask.setEpicOwnerId(Integer.parseInt(taskInfo[5]));
                 result = subtask;
                 break;

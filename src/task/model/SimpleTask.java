@@ -25,6 +25,6 @@ public class SimpleTask extends Task implements StatusChangeable, TimeChangeable
 
     @Override
     public String toString() {
-        return id + ",TASK," + name + "," + status + "," + description + ",";
+        return id + ",TASK," + name + "," + status + "," + description + "," + duration.toMinutes() + "," + startTime.format(formatter) + ",";
     }
 }

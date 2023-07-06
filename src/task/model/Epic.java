@@ -43,9 +43,15 @@ public class Epic extends Task {
     }
 
     public void calculateTime() {
-        startTime = subtasks.stream().min(Comparator.comparing(subtask -> subtask.startTime)).get().startTime;
-        endTime = subtasks.stream().max(Comparator.comparing(subtask -> subtask.startTime)).get().getEndTime();
-        duration = subtasks.stream().map(subtask -> subtask.duration).reduce(Duration.ZERO, Duration::plus);
+        if (startTime != null && duration != null) {
+            startTime = subtasks.stream().min(Comparator.comparing(subtask -> subtask.startTime)).get().startTime;
+            endTime = subtasks.stream().max(Comparator.comparing(subtask -> subtask.startTime)).get().getEndTime();
+            duration = subtasks.stream().map(subtask -> subtask.duration).reduce(Duration.ZERO, Duration::plus);
+        } else {
+            startTime = LocalDateTime.now();
+            endTime = LocalDateTime.now();
+            duration = Duration.ofMinutes(2);
+        }
     }
 
     @Override
@@ -97,7 +103,7 @@ public class Epic extends Task {
 
     @Override
     public String toString() {
-        return id + ",EPIC," + name + "," + status + "," + description + ",";
+        return id + ",EPIC," + name + "," + status + "," + description + "," + duration.toMinutes() + "," + startTime.format(formatter) + ",";
     }
 
 

@@ -49,7 +49,8 @@ public class Subtask extends Task implements StatusChangeable, TimeChangeable {
 
     @Override
     public String toString() {
-        return id + ",SUBTASK," + name + "," + status + "," + description + "," + epicOwnerId;
+        return id + ",SUBTASK," + name + "," + status + "," + description + "," + duration.toMinutes() + ","
+                + startTime.format(formatter) + "," + epicOwnerId + ",";
     }
 
 

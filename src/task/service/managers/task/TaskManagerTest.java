@@ -6,6 +6,9 @@ import org.junit.jupiter.api.Nested;
 import task.model.*;
 
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static task.service.managers.task.TaskType.*;
 
@@ -15,11 +18,20 @@ public class TaskManagerTest {
     public static Task getTask(TaskType type) {
         switch (type) {
             case TASK:
-                return new SimpleTask("task", "task");
+                SimpleTask simpleTask = new SimpleTask("task", "task");
+                simpleTask.setDuration(Duration.ZERO);
+                simpleTask.setStartTime(LocalDateTime.now());
+                return simpleTask;
             case SUBTASK:
-                return new Subtask("subtask", "subtask");
+                Subtask subtask = new Subtask("subtask", "subtask");
+                subtask.setDuration(Duration.ZERO);
+                subtask.setStartTime(LocalDateTime.now());
+                return subtask;
+
             case EPIC:
-                return new Epic("epic", "epic");
+                Epic epic = new Epic("epic", "epic");
+                epic.calculateTime();
+                return epic;
             default:
                 throw new IllegalArgumentException();
         }

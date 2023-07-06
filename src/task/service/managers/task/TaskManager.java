@@ -28,6 +28,8 @@ public interface TaskManager {
 
     List<Task> getHistory();
 
+    List<Task> getPrioritizedTasks();
+
     void removeSimpleTaskById(int id);
 
     void removeSubtaskById(int id);
