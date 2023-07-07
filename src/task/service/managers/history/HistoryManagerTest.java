@@ -2,6 +2,7 @@ package task.service.managers.history;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import task.model.Epic;
 import task.model.SimpleTask;
 import task.model.Subtask;
 
@@ -32,7 +33,7 @@ class HistoryManagerTest {
         manager.add(firstTask);
         manager.add(secondTask);
         assertTrue(manager.getHistory().contains(secondTask));
-        assertTrue(manager.getHistory().size() == 2);
+        assertEquals(2, manager.getHistory().size());
     }
 
     @Test
@@ -41,12 +42,26 @@ class HistoryManagerTest {
         SimpleTask secondTask = (SimpleTask) getTask(TASK);
         manager.add(firstTask);
         manager.add(secondTask);
-        assertTrue(manager.getHistory().size() == 1);
+        assertEquals(1, manager.getHistory().size());
     }
 
     @Test
     void testGetHistoryWithEmptyHistory() {
         assertTrue(manager.getHistory().isEmpty());
+    }
+
+
+    @Test
+    void testClearHistoryWithValues() {
+        SimpleTask task = (SimpleTask) getTask(TASK);
+        Subtask subtask = (Subtask) getTask(SUBTASK);
+        Epic epic = (Epic) getTask(EPIC);
+        manager.add(task);
+        manager.add(subtask);
+        manager.add(epic);
+        assertEquals(3, manager.getHistory().size());
+        manager.clearHistory();
+        assertEquals(0, manager.getHistory().size());
     }
 
     @Test
@@ -56,7 +71,7 @@ class HistoryManagerTest {
         secondTask.setId(2);
         manager.add(firstTask);
         manager.add(secondTask);
-        assertTrue(manager.getHistory().size() == 2);
+        assertEquals(2, manager.getHistory().size());
     }
 
     @Test
@@ -87,7 +102,7 @@ class HistoryManagerTest {
         manager.add(thirdTask);
         manager.remove(task.getId());
         assertFalse(manager.getHistory().contains(task));
-        assertTrue(manager.getHistory().size() == 2);
+        assertEquals(2, manager.getHistory().size());
     }
 
     @Test
@@ -102,7 +117,7 @@ class HistoryManagerTest {
         manager.add(thirdTask);
         manager.remove(secondTask.getId());
         assertFalse(manager.getHistory().contains(secondTask));
-        assertTrue(manager.getHistory().size() == 2);
+        assertEquals(2, manager.getHistory().size());
     }
 
     @Test
@@ -117,7 +132,7 @@ class HistoryManagerTest {
         manager.add(thirdTask);
         manager.remove(thirdTask.getId());
         assertFalse(manager.getHistory().contains(thirdTask));
-        assertTrue(manager.getHistory().size() == 2);
+        assertEquals(2, manager.getHistory().size());
     }
 
 }

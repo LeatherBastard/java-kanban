@@ -1,5 +1,5 @@
-id,type,name,status,description,epic
--424633377,EPIC,epic,NEW,epic,
--1168302147,SUBTASK,subtask,NEW,subtask,-424633377
+id,type,name,status,description,duration,startTime,epic
+124558904,EPIC,epic,NEW,epic,0,07.07.2023 18:40,
+-69917585,SUBTASK,subtask,NEW,subtask,0,07.07.2023 18:40,124558904,
 
--1168302147,-424633377
+-69917585,124558904

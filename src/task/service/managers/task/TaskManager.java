@@ -12,7 +12,7 @@ public interface TaskManager {
 
     void addSubtask(Subtask subtask);
 
-    void addEpicTask(Epic epic);
+     void addEpicTask(Epic epic);
 
     SimpleTask getSimpleTaskById(int id);
 

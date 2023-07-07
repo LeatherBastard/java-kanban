@@ -65,7 +65,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                 subtask.setStatus(TaskStatus.valueOf(taskInfo[3]));
                 subtask.setDuration(Duration.ofMinutes(Integer.parseInt(taskInfo[5])));
                 subtask.setStartTime(LocalDateTime.parse(taskInfo[6], formatter));
-                subtask.setEpicOwnerId(Integer.parseInt(taskInfo[5]));
+                subtask.setEpicOwnerId(Integer.parseInt(taskInfo[7]));
                 result = subtask;
                 break;
             default:
@@ -150,10 +150,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                     case TASK:
                         SimpleTask simpleTask = (SimpleTask) task;
                         manager.simpleTasks.put(simpleTask.getId(), simpleTask);
+                        manager.addTaskToPrioritized(simpleTask);
                         break;
                     case EPIC:
                         Epic epic = (Epic) task;
                         manager.epicTasks.put(epic.getId(), epic);
+                        manager.addTaskToPrioritized(epic);
                         break;
                     case SUBTASK:
                         Subtask subtask = (Subtask) task;

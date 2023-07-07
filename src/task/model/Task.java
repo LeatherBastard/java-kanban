@@ -8,7 +8,7 @@ import java.util.Objects;
 import static task.model.TaskStatus.*;
 
 public class Task {
-    public final static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+    public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
     protected int id;
     protected String name;
     protected String description;
@@ -72,7 +72,7 @@ public class Task {
         if (obj == null || this.getClass() != obj.getClass()) return false;
         Task other = (Task) obj;
         return id == other.id && Objects.equals(name, other.name) && Objects.equals(description, other.description) &&
-                Objects.equals(status, other.status) && duration.equals(other.duration) && startTime.equals(other.startTime);
+                Objects.equals(status, other.status) && Objects.equals(duration, other.duration) && Objects.equals(startTime, other.startTime);
     }
 
     @Override

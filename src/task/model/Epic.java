@@ -9,7 +9,7 @@ import static task.model.TaskStatus.*;
 public class Epic extends Task {
     private LocalDateTime endTime;
 
-    private ArrayList<Subtask> subtasks;
+    private final ArrayList<Subtask> subtasks;
 
     public Epic(String name, String description) {
         super(name, description);
@@ -43,14 +43,14 @@ public class Epic extends Task {
     }
 
     public void calculateTime() {
-        if (startTime != null && duration != null) {
-            startTime = subtasks.stream().min(Comparator.comparing(subtask -> subtask.startTime)).get().startTime;
-            endTime = subtasks.stream().max(Comparator.comparing(subtask -> subtask.getEndTime())).get().getEndTime();
+        if (!subtasks.isEmpty()) {
+            startTime = subtasks.stream().min(Comparator.comparing(subtask -> subtask.startTime)).orElseThrow().startTime;
+            endTime = subtasks.stream().max(Comparator.comparing(Task::getEndTime)).orElseThrow().getEndTime();
             duration = subtasks.stream().map(subtask -> subtask.duration).reduce(Duration.ZERO, Duration::plus);
         } else {
-            startTime = LocalDateTime.now();
-            endTime = LocalDateTime.now();
-            duration = Duration.ofMinutes(2);
+            startTime = LocalDateTime.parse("01.01.1970 00:00", formatter);
+            endTime = LocalDateTime.parse("01.01.1970 00:00", formatter);
+            duration = Duration.ofMinutes(0);
         }
     }
 

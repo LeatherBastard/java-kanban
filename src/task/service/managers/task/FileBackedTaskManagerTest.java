@@ -53,7 +53,7 @@ class FileBackedTaskManagerTest {
         manager.getEpicTaskById(epic.getId());
         List<Task> tasks = manager.getHistory();
         manager = loadFromFile(new File(TASKS_PATH));
-        assertTrue(tasks.equals(manager.getHistory()));
+        assertEquals(tasks, manager.getHistory());
     }
 
 

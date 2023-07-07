@@ -8,8 +8,10 @@ import task.model.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static task.model.Task.formatter;
 import static task.service.managers.task.TaskType.*;
 
 public class TaskManagerTest {
@@ -19,17 +21,20 @@ public class TaskManagerTest {
         switch (type) {
             case TASK:
                 SimpleTask simpleTask = new SimpleTask("task", "task");
+                simpleTask.setId(0);
                 simpleTask.setDuration(Duration.ZERO);
-                simpleTask.setStartTime(LocalDateTime.now());
+                simpleTask.setStartTime(LocalDateTime.parse("07.07.2023 08:53", formatter));
                 return simpleTask;
             case SUBTASK:
                 Subtask subtask = new Subtask("subtask", "subtask");
+                subtask.setId(1);
                 subtask.setDuration(Duration.ZERO);
-                subtask.setStartTime(LocalDateTime.now());
+                subtask.setStartTime(LocalDateTime.parse("07.07.2023 18:40", formatter));
                 return subtask;
 
             case EPIC:
                 Epic epic = new Epic("epic", "epic");
+                epic.setId(2);
                 epic.calculateTime();
                 return epic;
             default:
@@ -48,7 +53,7 @@ public class TaskManagerTest {
         void testAddSimpleTaskWithOrdinaryTask() {
             SimpleTask task = (SimpleTask) getTask(TASK);
             taskManager.addSimpleTask(task);
-            assertTrue(taskManager.getSimpleTaskById(task.getId()).equals(task));
+            assertEquals(taskManager.getSimpleTaskById(task.getId()), task);
         }
 
         @Test
@@ -64,7 +69,7 @@ public class TaskManagerTest {
         void testGetSimpleTaskByIdWithOrdinaryTask() {
             SimpleTask expectedTask = (SimpleTask) getTask(TASK);
             taskManager.addSimpleTask(expectedTask);
-            assertTrue(taskManager.getSimpleTaskById(expectedTask.getId()).equals(expectedTask));
+            assertEquals(taskManager.getSimpleTaskById(expectedTask.getId()), expectedTask);
         }
 
         @Test
@@ -125,7 +130,7 @@ public class TaskManagerTest {
             taskManager.addSimpleTask(task);
             task.setName("changed task");
             taskManager.updateSimpleTask(task);
-            assertTrue(taskManager.getSimpleTaskById(task.getId()).getName().equals("changed task"));
+            assertEquals("changed task", taskManager.getSimpleTaskById(task.getId()).getName());
         }
 
         @Test
@@ -169,7 +174,7 @@ public class TaskManagerTest {
         void testGetSubtaskByIdWithOrdinaryTask() {
             Subtask expectedTask = (Subtask) getTask(SUBTASK);
             taskManager.addSubtask(expectedTask);
-            assertTrue(taskManager.getSubtaskById(expectedTask.getId()).equals(expectedTask));
+            assertEquals(taskManager.getSubtaskById(expectedTask.getId()), expectedTask);
         }
 
         @Test
@@ -285,7 +290,7 @@ public class TaskManagerTest {
         void testGetEpicTaskByIdWithOrdinaryTask() {
             Epic expectedTask = (Epic) getTask(EPIC);
             taskManager.addEpicTask(expectedTask);
-            assertTrue(taskManager.getEpicTaskById(expectedTask.getId()).equals(expectedTask));
+            assertEquals(taskManager.getEpicTaskById(expectedTask.getId()), expectedTask);
         }
 
         @Test
@@ -354,6 +359,7 @@ public class TaskManagerTest {
         void testUpdateEpicTaskWithOrdinaryTask() {
             Epic epic = (Epic) getTask(EPIC);
             Epic anotherEpic = new Epic("another epic", "epic");
+            anotherEpic.calculateTime();
             Subtask subtask = (Subtask) getTask(SUBTASK);
             taskManager.addEpicTask(epic);
             subtask.setEpicOwnerId(taskManager.getAllEpicTasks().get(0).getId());
@@ -361,7 +367,7 @@ public class TaskManagerTest {
             anotherEpic.setId(epic.getId());
             taskManager.updateEpicTask(anotherEpic);
             String updatedEpicName = anotherEpic.getName();
-            assertTrue(taskManager.getEpicTaskById(epic.getId()).getName().equals(updatedEpicName));
+            assertEquals(taskManager.getEpicTaskById(epic.getId()).getName(), updatedEpicName);
             assertTrue(taskManager.getAllSubtasks().isEmpty());
         }
 
@@ -383,5 +389,35 @@ public class TaskManagerTest {
     @Test
     void testGetHistoryIfEmpty() {
         assertTrue(taskManager.getHistory().isEmpty());
+    }
+
+    @Test
+    void testGetPrioritizedTasksIfEmpty() {
+        assertTrue(taskManager.getPrioritizedTasks().isEmpty());
+    }
+
+    @Test
+    void testGetPrioritizedTasksIfNotEmpty() {
+        SimpleTask task = (SimpleTask) getTask(TASK);
+        Epic epic = (Epic) getTask(EPIC);
+        Subtask subtask = (Subtask) getTask(SUBTASK);
+        taskManager.addSimpleTask(task);
+        taskManager.addEpicTask(epic);
+        taskManager.addSubtask(subtask);
+        List<Task> expected = List.of(epic, task, subtask);
+        assertEquals(expected, taskManager.getPrioritizedTasks());
+    }
+
+    @Test
+    void testGetPrioritizedTasksIfTaskHaveNoDate() {
+        SimpleTask task = (SimpleTask) getTask(TASK);
+        Epic epic = (Epic) getTask(EPIC);
+        task.setStartTime(null);
+        Subtask subtask = (Subtask) getTask(SUBTASK);
+        taskManager.addSimpleTask(task);
+        taskManager.addEpicTask(epic);
+        taskManager.addSubtask(subtask);
+        int expectedPosition = taskManager.getPrioritizedTasks().size() - 1;
+        assertEquals(task, taskManager.getPrioritizedTasks().get(expectedPosition));
     }
 }
