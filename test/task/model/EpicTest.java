@@ -25,12 +25,12 @@ class EpicTest {
     }
 
     @Test
-    public void shouldStatusBeNewWhenNoSubtask() {
+     void shouldStatusBeNewWhenNoSubtask() {
         assertEquals(TaskStatus.NEW, epicExample.getStatus());
     }
 
     @Test
-    public void shouldStatusBeNewWhenSubtasksAreNew() {
+     void shouldStatusBeNewWhenSubtasksAreNew() {
         subtask1.setStatus(TaskStatus.NEW);
         subtask2.setStatus(TaskStatus.NEW);
         epicExample.addSubtask(subtask1);
@@ -39,7 +39,7 @@ class EpicTest {
     }
 
     @Test
-    public void shouldStatusBeDoneWhenSubtasksAreDone() {
+     void shouldStatusBeDoneWhenSubtasksAreDone() {
         subtask1.setStatus(TaskStatus.DONE);
         subtask2.setStatus(TaskStatus.DONE);
         epicExample.addSubtask(subtask1);
@@ -48,7 +48,7 @@ class EpicTest {
     }
 
     @Test
-    public void shouldStatusBeInProgressWhenSubtasksAreNewAndDone() {
+     void shouldStatusBeInProgressWhenSubtasksAreNewAndDone() {
         subtask1.setStatus(TaskStatus.NEW);
         subtask2.setStatus(TaskStatus.DONE);
         epicExample.addSubtask(subtask1);
@@ -57,7 +57,7 @@ class EpicTest {
     }
 
     @Test
-    public void shouldStatusBeInProgressWhenSubtasksAreInProgress() {
+     void shouldStatusBeInProgressWhenSubtasksAreInProgress() {
         subtask1.setStatus(TaskStatus.IN_PROGRESS);
         subtask2.setStatus(TaskStatus.IN_PROGRESS);
         epicExample.addSubtask(subtask1);
@@ -66,7 +66,7 @@ class EpicTest {
     }
 
     @Test
-    public void testCalculateTimeIfNoSubtasks() {
+     void testCalculateTimeIfNoSubtasks() {
         epicExample.calculateTime();
         assertEquals(epicExample.startTime, LocalDateTime.parse("01.01.1970 00:00", formatter));
         assertEquals(epicExample.getEndTime(), LocalDateTime.parse("01.01.1970 00:00", formatter));
@@ -74,7 +74,7 @@ class EpicTest {
     }
 
     @Test
-    public void testCalculateTimeWithSubtasks() {
+     void testCalculateTimeWithSubtasks() {
         subtask2.setStartTime(subtask2.getStartTime().plusHours(2));
         subtask2.setDuration(subtask2.getDuration().plusMinutes(3));
         epicExample.addSubtask(subtask1);
