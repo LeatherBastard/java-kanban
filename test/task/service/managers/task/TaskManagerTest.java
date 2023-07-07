@@ -1,10 +1,9 @@
 package task.service.managers.task;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import task.model.*;
-
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -57,6 +56,17 @@ public class TaskManagerTest {
         }
 
         @Test
+        void testAddSimpleTaskWithIntersectedDate() {
+            SimpleTask task = (SimpleTask) getTask(TASK);
+            SimpleTask anotherTask = (SimpleTask) getTask(TASK);
+            anotherTask.setId(2);
+            taskManager.addSimpleTask(task);
+            assertTrue(taskManager.getAllSimpleTasks().contains(task));
+            taskManager.addSimpleTask(anotherTask);
+            assertFalse(taskManager.getAllSimpleTasks().contains(anotherTask));
+        }
+
+        @Test
         void testAddSimpleTaskWithEmptyTask() {
             SimpleTask task = null;
             assertThrows(
@@ -102,6 +112,8 @@ public class TaskManagerTest {
         void testRemoveSimpleTaskByIdIfWrongId() {
             SimpleTask simpleTask = (SimpleTask) getTask(TASK);
             SimpleTask removedSimpleTask = new SimpleTask("simple", "task");
+            removedSimpleTask.setStartTime(simpleTask.getStartTime().plusDays(2));
+            removedSimpleTask.setDuration(Duration.ofMinutes(2));
             taskManager.addSimpleTask(simpleTask);
             taskManager.addSimpleTask(removedSimpleTask);
             taskManager.removeSimpleTaskById(removedSimpleTask.getId());
@@ -210,6 +222,8 @@ public class TaskManagerTest {
         void testRemoveSubtaskByIdIfWrongId() {
             Subtask subtask = (Subtask) getTask(SUBTASK);
             Subtask removedSubtask = new Subtask("sub", "task");
+            removedSubtask.setStartTime(subtask.getStartTime().plusDays(2));
+            removedSubtask.setDuration(Duration.ofDays(2));
             taskManager.addSubtask(subtask);
             taskManager.addSubtask(removedSubtask);
             taskManager.removeSubtaskById(removedSubtask.getId());
@@ -327,8 +341,11 @@ public class TaskManagerTest {
         void testRemoveEpicByIdIfWrongId() {
             Epic epic = (Epic) getTask(EPIC);
             Epic removedEpic = new Epic("epic", "task");
-            taskManager.addEpicTask(epic);
+            Subtask subtask = (Subtask) getTask(SUBTASK);
             taskManager.addEpicTask(removedEpic);
+            subtask.setEpicOwnerId(taskManager.getAllEpicTasks().get(0).getId());
+            taskManager.addSubtask(subtask);
+            taskManager.addEpicTask(epic);
             taskManager.removeEpicTaskById(removedEpic.getId());
             assertTrue(taskManager.getAllEpicTasks().contains(epic));
             assertFalse(taskManager.getAllEpicTasks().contains(removedEpic));

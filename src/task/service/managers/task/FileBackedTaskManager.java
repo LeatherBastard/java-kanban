@@ -150,12 +150,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                     case TASK:
                         SimpleTask simpleTask = (SimpleTask) task;
                         manager.simpleTasks.put(simpleTask.getId(), simpleTask);
-                        manager.addTaskToPrioritized(simpleTask);
+                        manager.prioritizedTasks.add(simpleTask);
                         break;
                     case EPIC:
                         Epic epic = (Epic) task;
                         manager.epicTasks.put(epic.getId(), epic);
-                        manager.addTaskToPrioritized(epic);
+                        manager.prioritizedTasks.add(epic);
                         break;
                     case SUBTASK:
                         Subtask subtask = (Subtask) task;
