@@ -41,16 +41,20 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void addSimpleTask(SimpleTask simpleTask) {
-        if (!isDateIntersected(simpleTask)) {
+        try {
+            validateDate(simpleTask);
             prioritizedTasks.add(simpleTask);
             simpleTask.setId(simpleTask.hashCode());
             simpleTasks.put(simpleTask.getId(), simpleTask);
+        } catch (TaskValidationException e) {
+            System.out.println(e.getMessage());
         }
     }
 
     @Override
     public void addSubtask(Subtask subtask) {
-        if (!isDateIntersected(subtask)) {
+        try {
+            validateDate(subtask);
             prioritizedTasks.add(subtask);
             Epic epic = getEpicTaskById(subtask.getEpicOwnerId());
             if (epic != null && !epic.getSubtasks().contains(subtask)) {
@@ -58,22 +62,26 @@ public class InMemoryTaskManager implements TaskManager {
             }
             subtask.setId(subtask.hashCode());
             subtasks.put(subtask.getId(), subtask);
+        } catch (TaskValidationException e) {
+            System.out.println(e.getMessage());
         }
     }
 
     @Override
     public void addEpicTask(Epic epic) {
-        if (!isDateIntersected(epic)) {
+        try {
+            validateDate(epic);
             prioritizedTasks.add(epic);
             epic.setId(epic.hashCode());
             List<Subtask> epicSubtasks = epic.getSubtasks();
             epicTasks.put(epic.getId(), epic);
             for (Subtask subtask : epicSubtasks) {
                 subtask.setEpicOwnerId(epic.getId());
-                //addSubtask(subtask);
                 subtasks.put(subtask.getId(), subtask);
                 prioritizedTasks.add(subtask);
             }
+        } catch (TaskValidationException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -182,38 +190,41 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateSimpleTask(SimpleTask simpleTask) {
-        int simpleTaskId = simpleTask.getId();
-        if (simpleTasks.containsKey(simpleTaskId)) {
-            SimpleTask previousTask = getSimpleTaskById(simpleTaskId);
-            prioritizedTasks.remove(previousTask);
-            if (isDateIntersected(simpleTask)) {
-                prioritizedTasks.add(previousTask);
-            } else {
+        try {
+            int simpleTaskId = simpleTask.getId();
+            if (simpleTasks.containsKey(simpleTaskId)) {
+                SimpleTask previousTask = getSimpleTaskById(simpleTaskId);
+                prioritizedTasks.remove(previousTask);
+                validateDate(simpleTask);
                 simpleTasks.put(simpleTask.getId(), simpleTask);
                 prioritizedTasks.add(simpleTask);
             }
+        } catch (TaskValidationException e) {
+            System.out.println(e.getMessage());
         }
     }
 
+
     @Override
     public void updateSubtask(Subtask subtask) {
-        int subtaskId = subtask.getId();
-        if (subtasks.containsKey(subtaskId)) {
-            Subtask previousSubtask = getSubtaskById(subtaskId);
-            prioritizedTasks.remove(previousSubtask);
-            if (isDateIntersected(previousSubtask)) {
-                prioritizedTasks.add(previousSubtask);
-            } else {
+        try {
+            int subtaskId = subtask.getId();
+            if (subtasks.containsKey(subtaskId)) {
+                Subtask previousSubtask = getSubtaskById(subtaskId);
+                prioritizedTasks.remove(previousSubtask);
+                validateDate(subtask);
                 Epic epic = getEpicTaskById(subtask.getEpicOwnerId());
                 epic.removeSubtask(subtask.getId());
                 epic.addSubtask(subtask);
                 subtasks.put(subtask.getId(), subtask);
                 prioritizedTasks.add(subtask);
             }
+        } catch (TaskValidationException e) {
+            System.out.println(e.getMessage());
         }
     }
 
-    protected boolean isDateIntersected(Task task) {
+    protected void validateDate(Task task) throws TaskValidationException {
         if (task.getStartTime() != null) {
             for (Task prioritizedTask : prioritizedTasks) {
                 if (prioritizedTask.getStartTime() != null) {
@@ -224,23 +235,22 @@ public class InMemoryTaskManager implements TaskManager {
                     boolean isIntersectionFound = taskStartTime.equals(prioritizedTaskStartTime) ||
                             taskEndTime.equals(prioritizedTaskEndTIme);
                     if (isIntersectionFound) {
-                        return true;
+                        throw new TaskValidationException("Didn`t pass date validation");
                     }
                 }
             }
         }
-        return false;
+
     }
 
     @Override
     public void updateEpicTask(Epic epic) {
-        int epicTaskId = epic.getId();
-        if (epicTasks.containsKey(epicTaskId)) {
-            Epic previousEpic = getEpicTaskById(epicTaskId);
-            prioritizedTasks.remove(previousEpic);
-            if (isDateIntersected(epic)) {
-                prioritizedTasks.add(epic);
-            } else {
+        try {
+            int epicTaskId = epic.getId();
+            if (epicTasks.containsKey(epicTaskId)) {
+                Epic previousEpic = getEpicTaskById(epicTaskId);
+                prioritizedTasks.remove(previousEpic);
+                validateDate(epic);
                 List<Subtask> oldEpicSubtasks = getEpicTaskById(epic.getId()).getSubtasks();
                 List<Subtask> newEpicSubtasks = epic.getSubtasks();
                 if (!oldEpicSubtasks.equals(newEpicSubtasks)) {
@@ -258,6 +268,9 @@ public class InMemoryTaskManager implements TaskManager {
                 epicTasks.put(epic.getId(), epic);
                 prioritizedTasks.add(epic);
             }
+        } catch (TaskValidationException e) {
+            System.out.println(e.getMessage());
         }
     }
 }
+
