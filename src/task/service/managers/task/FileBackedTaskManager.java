@@ -183,21 +183,24 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     @Override
-    public void removeSimpleTaskById(int id) {
-        super.removeSimpleTaskById(id);
+    public SimpleTask removeSimpleTaskById(int id) {
+        SimpleTask simpleTask = super.removeSimpleTaskById(id);
         save();
+        return simpleTask;
     }
 
     @Override
-    public void removeSubtaskById(int id) {
-        super.removeSubtaskById(id);
+    public Subtask removeSubtaskById(int id) {
+        Subtask subtask = super.removeSubtaskById(id);
         save();
+        return subtask;
     }
 
     @Override
-    public void removeEpicTaskById(int id) {
-        super.removeEpicTaskById(id);
+    public Epic removeEpicTaskById(int id) {
+        Epic epic = super.removeEpicTaskById(id);
         save();
+        return epic;
     }
 
     @Override

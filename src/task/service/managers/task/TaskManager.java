@@ -12,7 +12,7 @@ public interface TaskManager {
 
     void addSubtask(Subtask subtask);
 
-     void addEpicTask(Epic epic);
+    void addEpicTask(Epic epic);
 
     SimpleTask getSimpleTaskById(int id);
 
@@ -30,11 +30,11 @@ public interface TaskManager {
 
     List<Task> getPrioritizedTasks();
 
-    void removeSimpleTaskById(int id);
+    SimpleTask removeSimpleTaskById(int id);
 
-    void removeSubtaskById(int id);
+    Subtask removeSubtaskById(int id);
 
-    void removeEpicTaskById(int id);
+    Epic removeEpicTaskById(int id);
 
     void removeAllSimpleTasks();
 
