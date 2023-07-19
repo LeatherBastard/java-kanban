@@ -57,6 +57,7 @@ public class HttpTaskServer {
     private static final String GET_TASKS_ENDPOINT = "/tasks/task/";
     private static final String GET_SUBTASKS_ENDPOINT = "/tasks/subtask/";
     private static final String GET_EPICS_ENDPOINT = "/tasks/epic/";
+    private static final String GET_EPIC_SUBTASKS_ENDPOINT = "/tasks/subtask/epic/";
     private static final String GET_TASKS_HISTORY_ENDPOINT = "/tasks/history";
     private static final String GET_TASKS_PRIORITIZED_ENDPOINT = "/tasks/";
 
@@ -73,6 +74,11 @@ public class HttpTaskServer {
     public void start() {
         System.out.println(SERVER_START_MESSAGE + PORT);
         server.createContext(GET_TASKS_ENDPOINT, this::handleTasks);
+        server.createContext(GET_SUBTASKS_ENDPOINT, this::handleSubtasks);
+        server.createContext(GET_EPICS_ENDPOINT, this::handleEpics);
+        server.createContext(GET_EPIC_SUBTASKS_ENDPOINT, this::handleEpicSubtasks);
+        server.createContext(GET_TASKS_HISTORY_ENDPOINT, this::handleTasksHistory);
+        server.createContext(GET_TASKS_PRIORITIZED_ENDPOINT, this::handlePrioritizedTasks);
         server.start();
     }
 
@@ -82,7 +88,7 @@ public class HttpTaskServer {
     }
 
     private void handleTasks(HttpExchange httpExchange) throws IOException {
-        String path = httpExchange.getRequestURI().getPath();
+        String path = httpExchange.getRequestURI().toString();
         String requestMethod = httpExchange.getRequestMethod();
         switch (requestMethod) {
             case GET_REQUEST_METHOD:
@@ -93,7 +99,8 @@ public class HttpTaskServer {
                     if (optTaskId.isPresent()) {
                         int taskID = optTaskId.get();
                         Optional<SimpleTask> simpleTaskById = Optional.ofNullable(manager.getSimpleTaskById(taskID));
-                        if (simpleTaskById.isPresent()) writeResponse(httpExchange, gson.toJson(simpleTaskById), 200);
+                        if (simpleTaskById.isPresent())
+                            writeResponse(httpExchange, gson.toJson(simpleTaskById.get()), 200);
                         else writeResponse(httpExchange, taskID + TASK_WAS_NOT_FOUND_MESSAGE, 404);
                     } else {
                         writeResponse(httpExchange, TASK_INCORRECT_ID_MESSAGE, 400);
@@ -128,8 +135,8 @@ public class HttpTaskServer {
                         int taskID = optTaskId.get();
                         Optional<SimpleTask> removedTask = Optional.ofNullable(manager.removeSimpleTaskById(taskID));
                         if (removedTask.isPresent())
-                            writeResponse(httpExchange, +taskID + TASK_REMOVE_MESSAGE, 200);
-                        else writeResponse(httpExchange, taskID + TASK_WAS_NOT_FOUND_MESSAGE, 404);
+                            writeResponse(httpExchange, +taskID + " " + TASK_REMOVE_MESSAGE, 200);
+                        else writeResponse(httpExchange, taskID + " " + TASK_WAS_NOT_FOUND_MESSAGE, 404);
                     } else {
                         writeResponse(httpExchange, TASK_INCORRECT_ID_MESSAGE, 400);
                     }
@@ -144,7 +151,7 @@ public class HttpTaskServer {
 
 
     private void handleSubtasks(HttpExchange httpExchange) throws IOException {
-        String path = httpExchange.getRequestURI().getPath();
+        String path = httpExchange.getRequestURI().toString();
         String requestMethod = httpExchange.getRequestMethod();
         switch (requestMethod) {
             case GET_REQUEST_METHOD:
@@ -155,14 +162,8 @@ public class HttpTaskServer {
                     if (optTaskId.isPresent()) {
                         int taskID = optTaskId.get();
                         Optional<Subtask> subtaskById = Optional.ofNullable(manager.getSubtaskById(taskID));
-                        if (subtaskById.isPresent()) writeResponse(httpExchange, gson.toJson(subtaskById), 200);
+                        if (subtaskById.isPresent()) writeResponse(httpExchange, gson.toJson(subtaskById.get()), 200);
                         else writeResponse(httpExchange, taskID + SUBTASK_WAS_NOT_FOUND_MESSAGE, 404);
-                    } else if (Pattern.matches("^tasks/subtask/epic/\\?id=\\d+$", path)) {
-
-
-
-                        
-
                     } else {
                         writeResponse(httpExchange, SUBTASK_INCORRECT_ID_MESSAGE, 400);
                     }
@@ -196,8 +197,8 @@ public class HttpTaskServer {
                         int taskID = optTaskId.get();
                         Optional<Subtask> removedSubtask = Optional.ofNullable(manager.removeSubtaskById(taskID));
                         if (removedSubtask.isPresent())
-                            writeResponse(httpExchange, +taskID + SUBTASK_REMOVE_MESSAGE, 200);
-                        else writeResponse(httpExchange, taskID + SUBTASK_WAS_NOT_FOUND_MESSAGE, 404);
+                            writeResponse(httpExchange, +taskID + " " + SUBTASK_REMOVE_MESSAGE, 200);
+                        else writeResponse(httpExchange, taskID + " " + SUBTASK_WAS_NOT_FOUND_MESSAGE, 404);
                     } else {
                         writeResponse(httpExchange, SUBTASK_INCORRECT_ID_MESSAGE, 400);
                     }
@@ -211,7 +212,7 @@ public class HttpTaskServer {
     }
 
     private void handleEpics(HttpExchange httpExchange) throws IOException {
-        String path = httpExchange.getRequestURI().getPath();
+        String path = httpExchange.getRequestURI().toString();
         String requestMethod = httpExchange.getRequestMethod();
         switch (requestMethod) {
             case GET_REQUEST_METHOD:
@@ -222,7 +223,7 @@ public class HttpTaskServer {
                     if (optTaskId.isPresent()) {
                         int taskID = optTaskId.get();
                         Optional<Epic> epicById = Optional.ofNullable(manager.getEpicTaskById(taskID));
-                        if (epicById.isPresent()) writeResponse(httpExchange, gson.toJson(epicById), 200);
+                        if (epicById.isPresent()) writeResponse(httpExchange, gson.toJson(epicById.get()), 200);
                         else writeResponse(httpExchange, taskID + EPIC_WAS_NOT_FOUND_MESSAGE, 404);
                     } else {
                         writeResponse(httpExchange, EPIC_INCORRECT_ID_MESSAGE, 400);
@@ -257,8 +258,8 @@ public class HttpTaskServer {
                         int taskID = optTaskId.get();
                         Optional<Epic> removedEpic = Optional.ofNullable(manager.removeEpicTaskById(taskID));
                         if (removedEpic.isPresent())
-                            writeResponse(httpExchange, +taskID + EPIC_REMOVE_MESSAGE, 200);
-                        else writeResponse(httpExchange, taskID + EPIC_WAS_NOT_FOUND_MESSAGE, 404);
+                            writeResponse(httpExchange, +taskID + " " + EPIC_REMOVE_MESSAGE, 200);
+                        else writeResponse(httpExchange, taskID + " " + EPIC_WAS_NOT_FOUND_MESSAGE, 404);
                     } else {
                         writeResponse(httpExchange, EPIC_INCORRECT_ID_MESSAGE, 400);
                     }
@@ -271,12 +272,39 @@ public class HttpTaskServer {
         }
     }
 
-    private void handleTasksHistory(HttpExchange httpExchange) throws IOException {
-        String path = httpExchange.getRequestURI().getPath();
+    private void handleEpicSubtasks(HttpExchange httpExchange) throws IOException {
+        String path = httpExchange.getRequestURI().toString();
         String requestMethod = httpExchange.getRequestMethod();
         switch (requestMethod) {
             case GET_REQUEST_METHOD:
-                writeResponse(httpExchange, gson.toJson(manager.getHistory()), 200);
+                if (Pattern.matches("^" + GET_EPIC_SUBTASKS_ENDPOINT + "\\?id=\\d+$", path)) {
+                    Optional<Integer> optTaskId = getPostId(path);
+                    if (optTaskId.isPresent()) {
+                        int taskID = optTaskId.get();
+                        Optional<Epic> epicById = Optional.ofNullable(manager.getEpicTaskById(taskID));
+                        if (epicById.isPresent())
+                            writeResponse(httpExchange, gson.toJson(epicById.get().getSubtasks()), 200);
+                        else writeResponse(httpExchange, taskID + " " + EPIC_WAS_NOT_FOUND_MESSAGE, 404);
+                    }
+                } else {
+                    writeResponse(httpExchange, ENDPOINT_NOT_FOUND_MESSAGE, 404);
+                }
+                break;
+            default:
+                writeResponse(httpExchange, REQUEST_METHOD_INCORRECT_MESSAGE, 400);
+        }
+    }
+
+    private void handleTasksHistory(HttpExchange httpExchange) throws IOException {
+        String path = httpExchange.getRequestURI().getPath().toString();
+        String requestMethod = httpExchange.getRequestMethod();
+        switch (requestMethod) {
+            case GET_REQUEST_METHOD:
+                if (pathMatchesAllTasksEndpoint(path, GET_TASKS_HISTORY_ENDPOINT))
+                    writeResponse(httpExchange, gson.toJson(manager.getHistory()), 200);
+                else {
+                    writeResponse(httpExchange, ENDPOINT_NOT_FOUND_MESSAGE, 404);
+                }
                 break;
             default:
                 writeResponse(httpExchange, REQUEST_METHOD_INCORRECT_MESSAGE, 400);
@@ -284,11 +312,15 @@ public class HttpTaskServer {
     }
 
     private void handlePrioritizedTasks(HttpExchange httpExchange) throws IOException {
-        String path = httpExchange.getRequestURI().getPath();
+        String path = httpExchange.getRequestURI().getPath().toString();
         String requestMethod = httpExchange.getRequestMethod();
         switch (requestMethod) {
             case GET_REQUEST_METHOD:
-                writeResponse(httpExchange, gson.toJson(manager.getPrioritizedTasks()), 200);
+                if (pathMatchesAllTasksEndpoint(path, GET_TASKS_PRIORITIZED_ENDPOINT))
+                    writeResponse(httpExchange, gson.toJson(manager.getPrioritizedTasks()), 200);
+                else {
+                    writeResponse(httpExchange, ENDPOINT_NOT_FOUND_MESSAGE, 404);
+                }
                 break;
             default:
                 writeResponse(httpExchange, REQUEST_METHOD_INCORRECT_MESSAGE, 400);
@@ -296,8 +328,10 @@ public class HttpTaskServer {
     }
 
     private boolean pathMatchesAllTasksEndpoint(String path, String endpoint) {
-        return Pattern.matches("^" + endpoint + "+$", path);
+
+        return Pattern.matches("^" + endpoint + "$", path);
     }
+
 
     private boolean pathMatchesByIdTaskEndpoint(String path, String endpoint) {
         return Pattern.matches("^" + endpoint + "\\?id=\\d+$", path);
