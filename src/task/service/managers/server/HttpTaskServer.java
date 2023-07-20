@@ -277,7 +277,7 @@ public class HttpTaskServer {
         String requestMethod = httpExchange.getRequestMethod();
         switch (requestMethod) {
             case GET_REQUEST_METHOD:
-                if (Pattern.matches("^" + GET_EPIC_SUBTASKS_ENDPOINT + "\\?id=\\d+$", path)) {
+                if (pathMatchesByIdTaskEndpoint(path, GET_EPIC_SUBTASKS_ENDPOINT)) {
                     Optional<Integer> optTaskId = getPostId(path);
                     if (optTaskId.isPresent()) {
                         int taskID = optTaskId.get();
