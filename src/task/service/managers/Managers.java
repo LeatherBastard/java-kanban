@@ -7,6 +7,7 @@ import task.service.managers.adapter.DurationAdapter;
 import task.service.managers.adapter.LocalDateTimeAdapter;
 import task.service.managers.history.HistoryManager;
 import task.service.managers.history.InMemoryHistoryManager;
+import task.service.managers.task.HttpTaskManager;
 import task.service.managers.task.InMemoryTaskManager;
 import task.service.managers.task.TaskManager;
 
@@ -14,12 +15,13 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 public final class Managers {
+    private static final String serverUrl = "http://localhost:8078";
 
     private Managers() {
     }
 
     public static TaskManager getDefault() {
-        return new InMemoryTaskManager();
+        return new HttpTaskManager(serverUrl);
     }
 
     public static HistoryManager getDefaultHistory() {

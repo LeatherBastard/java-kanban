@@ -101,7 +101,7 @@ public class HttpTaskServer {
                         Optional<SimpleTask> simpleTaskById = Optional.ofNullable(manager.getSimpleTaskById(taskID));
                         if (simpleTaskById.isPresent())
                             writeResponse(httpExchange, gson.toJson(simpleTaskById.get()), 200);
-                        else writeResponse(httpExchange, taskID + TASK_WAS_NOT_FOUND_MESSAGE, 404);
+                        else writeResponse(httpExchange, taskID + " " + TASK_WAS_NOT_FOUND_MESSAGE, 404);
                     } else {
                         writeResponse(httpExchange, TASK_INCORRECT_ID_MESSAGE, 400);
                     }
@@ -163,7 +163,7 @@ public class HttpTaskServer {
                         int taskID = optTaskId.get();
                         Optional<Subtask> subtaskById = Optional.ofNullable(manager.getSubtaskById(taskID));
                         if (subtaskById.isPresent()) writeResponse(httpExchange, gson.toJson(subtaskById.get()), 200);
-                        else writeResponse(httpExchange, taskID + SUBTASK_WAS_NOT_FOUND_MESSAGE, 404);
+                        else writeResponse(httpExchange, taskID + " " + SUBTASK_WAS_NOT_FOUND_MESSAGE, 404);
                     } else {
                         writeResponse(httpExchange, SUBTASK_INCORRECT_ID_MESSAGE, 400);
                     }
@@ -224,7 +224,7 @@ public class HttpTaskServer {
                         int taskID = optTaskId.get();
                         Optional<Epic> epicById = Optional.ofNullable(manager.getEpicTaskById(taskID));
                         if (epicById.isPresent()) writeResponse(httpExchange, gson.toJson(epicById.get()), 200);
-                        else writeResponse(httpExchange, taskID + EPIC_WAS_NOT_FOUND_MESSAGE, 404);
+                        else writeResponse(httpExchange, taskID + " " + EPIC_WAS_NOT_FOUND_MESSAGE, 404);
                     } else {
                         writeResponse(httpExchange, EPIC_INCORRECT_ID_MESSAGE, 400);
                     }

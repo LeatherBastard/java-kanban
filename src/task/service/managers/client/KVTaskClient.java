@@ -1,4 +1,4 @@
-package task.service.managers.KV.client;
+package task.service.managers.client;
 
 import java.io.IOException;
 import java.net.URI;
