@@ -1,9 +1,6 @@
 package task.service.managers.task;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import task.model.Epic;
 import task.model.SimpleTask;
 import task.model.Subtask;
@@ -13,11 +10,11 @@ import task.service.managers.server.KVServer;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static task.service.managers.task.FileBackedTaskManager.TASKS_PATH;
-import static task.service.managers.task.FileBackedTaskManager.loadFromFile;
 import static task.service.managers.task.TaskManagerTest.getTask;
 import static task.service.managers.task.TaskType.*;
 import static task.service.managers.task.TaskType.TASK;
@@ -29,30 +26,36 @@ class HttpTaskManagerTest {
 
     @BeforeEach
     public void initialize() {
-
         try {
-            KVServer server = new KVServer();
+            server = new KVServer();
             server.start();
+            manager = new HttpTaskManager("http://localhost:8078");
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-        manager = new HttpTaskManager("http://localhost:8078");
+
     }
 
     @AfterEach
     public void serverStop() {
-        server.stop();
+        try {
+            server.stop();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
 
     @Test
     void testLoadFromFileIfTaskListEmpty() {
         assertTrue(manager.getHistory().isEmpty());
-        initialize();
+        manager = new HttpTaskManager("http://localhost:8078");
         assertTrue(manager.getHistory().isEmpty());
     }
 
+
     @Test
+        // @Disabled
     void testLoadFromFileIfTaskListNotEmpty() throws IOException {
         SimpleTask task = (SimpleTask) getTask(TASK);
         Subtask subtask = (Subtask) getTask(SUBTASK);

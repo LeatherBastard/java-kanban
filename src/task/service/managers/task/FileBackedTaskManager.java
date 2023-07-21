@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -21,24 +22,35 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     private static final String CSV_FILE_HEADER = "id,type,name,status,description,duration,startTime,epic" + NEW_LINE_CHARACTER;
     private static final int CSV_FILE_DATA_START = 1;
     public static final String TASKS_PATH = "tasks.csv";
+    private String path;
 
+
+    public FileBackedTaskManager(String path) {
+        try {
+            this.path = path;
+            if (path != null)
+                loadState();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 
     @Override
     public void addSimpleTask(SimpleTask simpleTask) {
         super.addSimpleTask(simpleTask);
-        save();
+        saveState();
     }
 
     @Override
     public void addSubtask(Subtask subtask) {
         super.addSubtask(subtask);
-        save();
+        saveState();
     }
 
     @Override
     public void addEpicTask(Epic epic) {
         super.addEpicTask(epic);
-        save();
+        saveState();
     }
 
     private Task fromString(String string) {
@@ -76,43 +88,43 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
     @Override
     public SimpleTask getSimpleTaskById(int id) {
-        save();
+        saveState();
         return super.getSimpleTaskById(id);
     }
 
     @Override
     public Subtask getSubtaskById(int id) {
-        save();
+        saveState();
         return super.getSubtaskById(id);
     }
 
     @Override
     public Epic getEpicTaskById(int id) {
-        save();
+        saveState();
         return super.getEpicTaskById(id);
     }
 
     @Override
     public List<SimpleTask> getAllSimpleTasks() {
-        save();
+        saveState();
         return super.getAllSimpleTasks();
     }
 
     @Override
     public List<Subtask> getAllSubtasks() {
-        save();
+        saveState();
         return super.getAllSubtasks();
     }
 
     @Override
     public List<Epic> getAllEpicTasks() {
-        save();
+        saveState();
         return super.getAllEpicTasks();
     }
 
     @Override
     public List<Task> getHistory() {
-        save();
+        saveState();
         return super.getHistory();
     }
 
@@ -136,30 +148,29 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         return result.toString();
     }
 
-    public static FileBackedTaskManager loadFromFile(File file) throws IOException {
-        FileBackedTaskManager manager = new FileBackedTaskManager();
+    protected void loadState() throws IOException {
         List<String> fileData;
-        fileData = Files.readAllLines(file.toPath());
+        fileData = Files.readAllLines(Path.of(path));
         if (fileData.size() > CSV_FILE_DATA_START) {
             String data;
             int i;
             for (i = CSV_FILE_DATA_START, data = fileData.get(i); !data.isEmpty(); i++, data = fileData.get(i)) {
                 String[] taskInfo = data.split(",");
-                Task task = manager.fromString(data);
+                Task task = fromString(data);
                 switch (TaskType.valueOf(taskInfo[1])) {
                     case TASK:
                         SimpleTask simpleTask = (SimpleTask) task;
-                        manager.simpleTasks.put(simpleTask.getId(), simpleTask);
-                        manager.prioritizedTasks.add(simpleTask);
+                        simpleTasks.put(simpleTask.getId(), simpleTask);
+                        prioritizedTasks.add(simpleTask);
                         break;
                     case EPIC:
                         Epic epic = (Epic) task;
-                        manager.epicTasks.put(epic.getId(), epic);
-                        manager.prioritizedTasks.add(epic);
+                        epicTasks.put(epic.getId(), epic);
+                        prioritizedTasks.add(epic);
                         break;
                     case SUBTASK:
                         Subtask subtask = (Subtask) task;
-                        manager.addSubtask(subtask);
+                        addSubtask(subtask);
                         break;
                 }
             }
@@ -167,62 +178,60 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             if (i < fileData.size()) {
                 List<Integer> history = historyFromString(fileData.get(i));
                 for (Integer key : history) {
-                    Task task = manager.simpleTasks.get(key);
+                    Task task = simpleTasks.get(key);
                     if (task == null) {
-                        task = manager.epicTasks.get(key);
+                        task = epicTasks.get(key);
                         if (task == null) {
-                            task = manager.subtasks.get(key);
+                            task = subtasks.get(key);
                         }
                     }
-                    manager.historyManager.add(task);
+                    historyManager.add(task);
                 }
             }
         }
-
-        return manager;
     }
 
     @Override
     public SimpleTask removeSimpleTaskById(int id) {
         SimpleTask simpleTask = super.removeSimpleTaskById(id);
-        save();
+        saveState();
         return simpleTask;
     }
 
     @Override
     public Subtask removeSubtaskById(int id) {
         Subtask subtask = super.removeSubtaskById(id);
-        save();
+        saveState();
         return subtask;
     }
 
     @Override
     public Epic removeEpicTaskById(int id) {
         Epic epic = super.removeEpicTaskById(id);
-        save();
+        saveState();
         return epic;
     }
 
     @Override
     public void removeAllSimpleTasks() {
         super.removeAllSimpleTasks();
-        save();
+        saveState();
     }
 
     @Override
     public void removeAllSubtasks() {
         super.removeAllSubtasks();
-        save();
+        saveState();
     }
 
     @Override
     public void removeAllEpicTasks() {
         super.removeAllEpicTasks();
-        save();
+        saveState();
     }
 
 
-    private void save() throws ManagerSaveException {
+    protected void saveState() throws ManagerSaveException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(TASKS_PATH))) {
             writer.write(CSV_FILE_HEADER);
             for (SimpleTask task : simpleTasks.values()) {
@@ -244,19 +253,19 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     @Override
     public void updateSimpleTask(SimpleTask simpleTask) {
         super.updateSimpleTask(simpleTask);
-        save();
+        saveState();
     }
 
     @Override
     public void updateSubtask(Subtask subtask) {
         super.updateSubtask(subtask);
-        save();
+        saveState();
     }
 
     @Override
     public void updateEpicTask(Epic epic) {
         super.updateEpicTask(epic);
-        save();
+        saveState();
     }
 
 }

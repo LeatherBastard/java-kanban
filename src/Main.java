@@ -2,6 +2,7 @@ import task.model.Epic;
 import task.model.SimpleTask;
 import task.model.Subtask;
 import task.model.Task;
+import task.service.managers.client.KVTaskClient;
 import task.service.managers.server.HttpTaskServer;
 import task.service.managers.server.KVServer;
 import task.service.managers.task.HttpTaskManager;
@@ -20,29 +21,11 @@ public class Main {
     public static void main(String[] args) throws IOException {
         KVServer server = new
                 KVServer();
-        server.start();
-        HttpTaskManager manager = new HttpTaskManager("http://localhost:8078");
-        SimpleTask task = new SimpleTask("task", "task");
-        SimpleTask simpleTask = new SimpleTask("task", "task");
-        simpleTask.setId(0);
-        simpleTask.setDuration(Duration.ZERO);
-        simpleTask.setStartTime(LocalDateTime.parse("07.07.2023 08:53", formatter));
+        KVTaskClient client = new KVTaskClient("http://localhost:8078");
 
-
-        Subtask subtask = new Subtask("subtask", "subtask");
-        subtask.setId(1);
-        subtask.setDuration(Duration.ZERO);
-        subtask.setStartTime(LocalDateTime.parse("07.07.2023 18:40", formatter));
-        Epic epic = new Epic("epic", "epic");
-        epic.setId(2);
-        epic.calculateTime();
-        manager.addSimpleTask(task);
-        manager.addSubtask(subtask);
-        manager.addEpicTask(epic);
-        manager.getSimpleTaskById(task.getId());
-        manager.getSubtaskById(subtask.getId());
-        manager.getEpicTaskById(epic.getId());
-        List<Task> tasks = manager.getHistory();
-        manager = new HttpTaskManager("http://localhost:8078");
+        client.put("Taskskey", "abcd,dada,dasda");
+        System.out.println(client.load("Taskskey"));
+        client = new KVTaskClient("http://localhost:8078");
+        System.out.println(client.load("Taskskey"));
     }
 }

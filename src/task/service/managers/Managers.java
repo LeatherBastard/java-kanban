@@ -11,6 +11,7 @@ import task.service.managers.task.HttpTaskManager;
 import task.service.managers.task.InMemoryTaskManager;
 import task.service.managers.task.TaskManager;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
@@ -20,7 +21,7 @@ public final class Managers {
     private Managers() {
     }
 
-    public static TaskManager getDefault() {
+    public static TaskManager getDefault() throws IOException {
         return new HttpTaskManager(serverUrl);
     }
 

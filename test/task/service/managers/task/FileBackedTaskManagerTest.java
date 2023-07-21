@@ -12,8 +12,6 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static task.service.managers.task.FileBackedTaskManager.TASKS_PATH;
-import static task.service.managers.task.FileBackedTaskManager.loadFromFile;
 import static task.service.managers.task.TaskManagerTest.getTask;
 import static task.service.managers.task.TaskType.*;
 
@@ -24,7 +22,7 @@ class FileBackedTaskManagerTest {
     @BeforeEach
     void initialize() {
         try {
-            manager = FileBackedTaskManager.loadFromFile(new File(TASKS_PATH));
+            manager = new FileBackedTaskManager("tasks.csv");
             manager.removeAllSimpleTasks();
             manager.removeAllEpicTasks();
             manager.historyManager.clearHistory();
@@ -52,7 +50,7 @@ class FileBackedTaskManagerTest {
         manager.getSubtaskById(subtask.getId());
         manager.getEpicTaskById(epic.getId());
         List<Task> tasks = manager.getHistory();
-        manager = loadFromFile(new File(TASKS_PATH));
+        manager = new FileBackedTaskManager("tasks.csv");
         assertEquals(tasks, manager.getHistory());
     }
 
@@ -67,7 +65,7 @@ class FileBackedTaskManagerTest {
         manager.getSubtaskById(subtask.getId());
         manager.getEpicTaskById(epic.getId());
         assertTrue(manager.getEpicTaskById(epic.getId()).getSubtasks().contains(subtask));
-        manager = loadFromFile(new File(TASKS_PATH));
+        manager = new FileBackedTaskManager("tasks.csv");
         assertTrue(manager.getEpicTaskById(epic.getId()).getSubtasks().contains(subtask));
     }
 

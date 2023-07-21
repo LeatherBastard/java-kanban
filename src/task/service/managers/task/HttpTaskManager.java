@@ -23,132 +23,122 @@ public class HttpTaskManager extends FileBackedTaskManager implements TaskManage
     private KVTaskClient client;
     private Gson gson;
 
+
     public HttpTaskManager(String serverUrl) {
-        super();
+        super(null);
         client = new KVTaskClient(serverUrl);
         gson = Managers.getGson();
-        loadFromServer();
+        loadState();
+
     }
 
     @Override
     public void addSimpleTask(SimpleTask simpleTask) {
         super.addSimpleTask(simpleTask);
-        save();
+
     }
 
     @Override
     public void addSubtask(Subtask subtask) {
         super.addSubtask(subtask);
-        save();
+
     }
 
     @Override
     public void addEpicTask(Epic epic) {
         super.addEpicTask(epic);
-        save();
+
     }
 
     @Override
     public SimpleTask getSimpleTaskById(int id) {
-        save();
+
         return super.getSimpleTaskById(id);
     }
 
     @Override
     public Subtask getSubtaskById(int id) {
-        save();
+
         return super.getSubtaskById(id);
     }
 
     @Override
     public Epic getEpicTaskById(int id) {
-        save();
+
         return super.getEpicTaskById(id);
     }
 
     @Override
     public List<SimpleTask> getAllSimpleTasks() {
-        save();
         return super.getAllSimpleTasks();
     }
 
     @Override
     public List<Subtask> getAllSubtasks() {
-        save();
+
         return super.getAllSubtasks();
     }
 
     @Override
     public List<Epic> getAllEpicTasks() {
-        save();
         return super.getAllEpicTasks();
     }
 
     @Override
     public List<Task> getHistory() {
-        save();
         return historyManager.getHistory();
     }
 
     @Override
     public SimpleTask removeSimpleTaskById(int id) {
         SimpleTask simpleTask = super.removeSimpleTaskById(id);
-        save();
         return simpleTask;
     }
 
     @Override
     public Subtask removeSubtaskById(int id) {
         Subtask subtask = super.removeSubtaskById(id);
-        save();
         return subtask;
     }
 
     @Override
     public Epic removeEpicTaskById(int id) {
         Epic epic = super.removeEpicTaskById(id);
-        save();
         return epic;
     }
 
     @Override
     public void removeAllSimpleTasks() {
         super.removeAllSimpleTasks();
-        save();
     }
 
     @Override
     public void removeAllSubtasks() {
         super.removeAllSubtasks();
-        save();
     }
 
     @Override
     public void removeAllEpicTasks() {
         super.removeAllEpicTasks();
-        save();
     }
 
     @Override
     public void updateSimpleTask(SimpleTask simpleTask) {
         super.updateSimpleTask(simpleTask);
-        save();
     }
 
     @Override
     public void updateSubtask(Subtask subtask) {
         super.updateSubtask(subtask);
-        save();
     }
 
     @Override
     public void updateEpicTask(Epic epic) {
         super.updateEpicTask(epic);
-        save();
     }
 
-
-    public void loadFromServer() {
+    @Override
+    protected void loadState() {
         JsonArray jsonSimpleTasksArray = gson.fromJson(client.load(simpleTasksKey), JsonArray.class);
         if (jsonSimpleTasksArray != null)
             jsonSimpleTasksArray.asList().stream()
@@ -171,11 +161,12 @@ public class HttpTaskManager extends FileBackedTaskManager implements TaskManage
                     .forEach(historyManager::add);
     }
 
-    public void save() {
+    @Override
+    protected void saveState() throws ManagerSaveException {
         client.put(simpleTasksKey, gson.toJson(simpleTasks.values()));
         client.put(epicTasksKey, gson.toJson(epicTasks.values()));
         client.put(subtasksKey, gson.toJson(subtasks.values()));
-        client.put(historyTasksKey, gson.toJson(historyManager.getHistory().toArray()));
+        client.put(historyTasksKey, gson.toJson(historyManager.getHistory()));
     }
 
 }
