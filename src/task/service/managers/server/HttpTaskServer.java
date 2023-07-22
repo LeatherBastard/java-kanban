@@ -26,7 +26,7 @@ public class HttpTaskServer {
     public static final String SERVER_URL = "http://localhost:" + PORT;
     private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
     private static final String SERVER_START_MESSAGE = "Started TaskServer ";
-    private static final String SERVER_STOP_MESSAGE = "Stopped Task server ";
+    private static final String SERVER_STOP_MESSAGE = "Stopped TaskServer ";
 
 
     public static final String TASK_WAS_NOT_FOUND_MESSAGE = "id task was not found";
@@ -81,12 +81,13 @@ public class HttpTaskServer {
         server.createContext(GET_EPIC_SUBTASKS_ENDPOINT, this::handleEpicSubtasks);
         server.createContext(GET_TASKS_HISTORY_ENDPOINT, this::handleTasksHistory);
         server.createContext(GET_TASKS_PRIORITIZED_ENDPOINT, this::handlePrioritizedTasks);
+
         server.start();
     }
 
     public void stop() {
-        server.stop(0);
         System.out.println(SERVER_STOP_MESSAGE + PORT);
+        server.stop(0);
     }
 
     private void handleTasks(HttpExchange httpExchange) throws IOException {
