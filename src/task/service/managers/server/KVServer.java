@@ -10,13 +10,6 @@ import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-/**
- * Постман: https://www.getpostman.com/collections/a83b61d9e1c81c10575c
- * <p>
- * http://localhost:8078/load/mykey?API_TOKEN=1689849526345
- * http://localhost:8078/load/mykey?API_TOKEN=1689849526345
- * http://localhost:8078/load/mykey?API_TOKEN=1689849526345
- */
 public class KVServer {
     public static final int PORT = 8078;
     private final String apiToken;
@@ -32,7 +25,6 @@ public class KVServer {
     }
 
     private void load(HttpExchange h) throws IOException {
-        // TODO  получение значения по ключу
         try {
             System.out.println("\n/load");
             if (!hasAuth(h)) {

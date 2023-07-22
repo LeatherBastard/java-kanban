@@ -7,7 +7,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class KVTaskClient {
-    private String serverURL;
+
+    private final String serverURL;
     private String accessToken;
     private HttpClient client;
 
@@ -19,9 +20,7 @@ public class KVTaskClient {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             accessToken = response.body();
         } catch (IOException | InterruptedException e) {
-            System.out.println("Во время выполнения запроса ресурса по url-адресу: '" +
-                    serverURL + "' возникла ошибка.\n" +
-                    "Проверьте, пожалуйста, адрес и повторите попытку.");
+            queryExecutionErrorMessage(serverURL);
         }
     }
 
@@ -40,9 +39,7 @@ public class KVTaskClient {
                 System.out.println("Значение ключа или значения было пустым");
             }
         } catch (IOException | InterruptedException e) {
-            System.out.println("Во время выполнения запроса ресурса по url-адресу: '" +
-                    putURL + "' возникла ошибка.\n" +
-                    "Проверьте, пожалуйста, адрес и повторите попытку.");
+            queryExecutionErrorMessage(putURL);
         }
     }
 
@@ -62,10 +59,14 @@ public class KVTaskClient {
                 System.out.println("Значение ключа было пустым или значение не было найдено");
             }
         } catch (IOException | InterruptedException e) {
-            System.out.println("Во время выполнения запроса ресурса по url-адресу: '" +
-                    loadURL + "' возникла ошибка.\n" +
-                    "Проверьте, пожалуйста, адрес и повторите попытку.");
+            queryExecutionErrorMessage(loadURL);
         }
         return result;
+    }
+
+    private void queryExecutionErrorMessage(String url) {
+        System.out.println("Во время выполнения запроса ресурса по url-адресу: '" +
+                url + "' возникла ошибка.\n" +
+                "Проверьте, пожалуйста, адрес и повторите попытку.");
     }
 }

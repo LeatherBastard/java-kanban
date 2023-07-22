@@ -4,7 +4,6 @@ import task.model.*;
 import task.service.managers.history.HistoryManager;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -88,20 +87,23 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
     @Override
     public SimpleTask getSimpleTaskById(int id) {
+        SimpleTask simpleTask = super.getSimpleTaskById(id);
         saveState();
-        return super.getSimpleTaskById(id);
+        return simpleTask;
     }
 
     @Override
     public Subtask getSubtaskById(int id) {
+        Subtask subtask = super.getSubtaskById(id);
         saveState();
-        return super.getSubtaskById(id);
+        return subtask;
     }
 
     @Override
     public Epic getEpicTaskById(int id) {
+        Epic epic = super.getEpicTaskById(id);
         saveState();
-        return super.getEpicTaskById(id);
+        return epic;
     }
 
     @Override

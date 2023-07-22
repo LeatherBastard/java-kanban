@@ -1,23 +1,20 @@
 package task.service.managers.task;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import task.model.Epic;
 import task.model.SimpleTask;
 import task.model.Subtask;
 import task.model.Task;
-import task.service.managers.Managers;
 import task.service.managers.server.KVServer;
 
-import java.io.File;
 import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static task.service.managers.task.TaskManagerTest.getTask;
 import static task.service.managers.task.TaskType.*;
-import static task.service.managers.task.TaskType.TASK;
 
 class HttpTaskManagerTest {
 
@@ -47,7 +44,7 @@ class HttpTaskManagerTest {
 
 
     @Test
-    void testLoadFromFileIfTaskListEmpty() {
+    void testLoadFromServerIfTaskListEmpty() {
         assertTrue(manager.getHistory().isEmpty());
         manager = new HttpTaskManager("http://localhost:8078");
         assertTrue(manager.getHistory().isEmpty());
@@ -56,7 +53,7 @@ class HttpTaskManagerTest {
 
     @Test
         // @Disabled
-    void testLoadFromFileIfTaskListNotEmpty() throws IOException {
+    void testLoadFromServerIfTaskListNotEmpty() {
         SimpleTask task = (SimpleTask) getTask(TASK);
         Subtask subtask = (Subtask) getTask(SUBTASK);
         Epic epic = (Epic) getTask(EPIC);
@@ -68,12 +65,13 @@ class HttpTaskManagerTest {
         manager.getEpicTaskById(epic.getId());
         List<Task> tasks = manager.getHistory();
         manager = new HttpTaskManager("http://localhost:8078");
-        assertEquals(tasks, manager.getHistory());
+        List<Task> tasksAfterReload = manager.getHistory();
+        assertEquals(tasks, tasksAfterReload);
     }
 
 
     @Test
-    void testLoadFromFileIfEpicHasSubtasks() throws IOException {
+    void testLoadFromServerIfEpicHasSubtasks() {
         Subtask subtask = (Subtask) getTask(SUBTASK);
         Epic epic = (Epic) getTask(EPIC);
         manager.addEpicTask(epic);
@@ -88,12 +86,10 @@ class HttpTaskManagerTest {
 
 
     @Test
-    void testLoadFromFileIfHistoryEmpty() {
+    void testLoadFromServerIfHistoryEmpty() {
         manager.addSimpleTask((SimpleTask) getTask(TASK));
         assertFalse(manager.simpleTasks.isEmpty());
         manager = new HttpTaskManager("http://localhost:8078");
         assertTrue(manager.getHistory().isEmpty());
     }
-
-
 }
