@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 
 public class SimpleTask extends Task implements StatusChangeable, TimeChangeable {
 
+    public SimpleTask() {
+    }
+
     public SimpleTask(String name, String description) {
         super(name, description);
     }

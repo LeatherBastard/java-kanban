@@ -7,6 +7,9 @@ import java.util.Objects;
 public class Subtask extends Task implements StatusChangeable, TimeChangeable {
     private int epicOwnerId;
 
+    public Subtask() {
+    }
+
     public Subtask(String name, String description) {
         super(name, description);
     }

@@ -134,11 +134,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         List<Integer> result = new ArrayList<>();
         String[] historyValues = value.split(",");
         for (String element : historyValues) {
-            element.replaceAll("\"", "");
+            element=element.replace("\"", "");
             try {
                 result.add(Integer.parseInt(element));
             } catch (NumberFormatException e) {
-                e.getMessage();
+                System.out.println(e.getMessage());
             }
         }
         return result;

@@ -9,7 +9,10 @@ import static task.model.TaskStatus.*;
 public class Epic extends Task {
     private LocalDateTime endTime;
 
-    private final ArrayList<Subtask> subtasks;
+    private ArrayList<Subtask> subtasks;
+
+    public Epic() {
+    }
 
     public Epic(String name, String description) {
         super(name, description);

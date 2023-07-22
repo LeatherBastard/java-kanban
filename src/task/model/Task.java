@@ -18,6 +18,8 @@ public class Task {
 
     protected LocalDateTime startTime;
 
+    public Task() {
+    }
 
     protected Task(String name, String description) {
         this.name = name;
@@ -27,6 +29,14 @@ public class Task {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
     }
 
     public int getId() {
