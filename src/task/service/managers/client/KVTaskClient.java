@@ -7,7 +7,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class KVTaskClient {
-
+    private static final String httpRequestExceptionMessage = "200 code expected but was ";
     private final String serverURL;
     private String accessToken;
     private HttpClient client;
@@ -18,13 +18,16 @@ public class KVTaskClient {
             client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder().uri(URI.create(serverURL + "/register")).GET().build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            checkStatusCode(response.statusCode());
             accessToken = response.body();
         } catch (IOException | InterruptedException e) {
             queryExecutionErrorMessage(serverURL);
+        } catch (HttpRequestException e) {
+            System.out.println(e.getMessage());
         }
     }
 
-    public void put(String key, String json) {
+    public void put(String key, String json) throws HttpRequestException {
         String putURL = serverURL + "/save/" + key + "?API_TOKEN=" + accessToken;
         try {
             HttpRequest request = HttpRequest.newBuilder()
@@ -32,18 +35,14 @@ public class KVTaskClient {
                     .header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString(json))
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
-                System.out.println("Значение для ключа " + key + " успешно обновлено!");
-            }
-            if (response.statusCode() == 400) {
-                System.out.println("Значение ключа или значения было пустым");
-            }
+            checkStatusCode(response.statusCode());
+            System.out.println("Значение для ключа " + key + " успешно обновлено!");
         } catch (IOException | InterruptedException e) {
             queryExecutionErrorMessage(putURL);
         }
     }
 
-    public String load(String key) {
+    public String load(String key) throws HttpRequestException {
         String result = "";
         String loadURL = serverURL + "/load/" + key + "?API_TOKEN=" + accessToken;
         try {
@@ -52,16 +51,18 @@ public class KVTaskClient {
                     .GET()
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
-                result = response.body();
-            }
-            if (response.statusCode() == 400) {
-                System.out.println("Значение ключа было пустым или значение не было найдено");
-            }
+            checkStatusCode(response.statusCode());
+            result = response.body();
         } catch (IOException | InterruptedException e) {
             queryExecutionErrorMessage(loadURL);
         }
         return result;
+    }
+
+    private void checkStatusCode(int code) throws HttpRequestException {
+        if (code != 200) {
+            throw new HttpRequestException(httpRequestExceptionMessage + code);
+        }
     }
 
     private void queryExecutionErrorMessage(String url) {

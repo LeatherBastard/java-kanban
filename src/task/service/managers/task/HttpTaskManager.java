@@ -7,6 +7,7 @@ import task.model.SimpleTask;
 import task.model.Subtask;
 import task.model.Task;
 import task.service.managers.Managers;
+import task.service.managers.client.HttpRequestException;
 import task.service.managers.client.KVTaskClient;
 
 import java.util.List;
@@ -34,43 +35,52 @@ public class HttpTaskManager extends FileBackedTaskManager implements TaskManage
 
     @Override
     protected void loadState() {
-        String historyString = client.load(HISTORY_TASKS_KEY);
-        JsonArray jsonSimpleTasksArray = gson.fromJson(client.load(SIMPLE_TASKS_KEY), JsonArray.class);
-        if (jsonSimpleTasksArray != null && jsonSimpleTasksArray.size() != 0)
-            jsonSimpleTasksArray.asList().stream()
-                    .map(jsonElement -> gson.fromJson(jsonElement, SimpleTask.class))
-                    .forEach(simpleTask -> simpleTasks.put(simpleTask.getId(), simpleTask));
-        JsonArray jsonEpicTasksTasksArray = gson.fromJson(client.load(EPIC_TASKS_KEY), JsonArray.class);
-        if (jsonEpicTasksTasksArray != null && jsonEpicTasksTasksArray.size() != 0)
-            jsonEpicTasksTasksArray.asList().stream()
-                    .map(jsonElement -> gson.fromJson(jsonElement, Epic.class))
-                    .forEach(epic -> epicTasks.put(epic.getId(), epic));
-        JsonArray jsonSubtasksTasksArray = gson.fromJson(client.load(SUBTASKS_KEY), JsonArray.class);
-        if (jsonSubtasksTasksArray != null && jsonSubtasksTasksArray.size() != 0)
-            jsonSubtasksTasksArray.asList().stream()
-                    .map(jsonElement -> gson.fromJson(jsonElement, Subtask.class))
-                    .forEach(this::addSubtask);
-        if (!historyString.isEmpty()) {
-            List<Integer> history = historyFromString(historyString);
-            for (Integer key : history) {
-                Task task = simpleTasks.get(key);
-                if (task == null) {
-                    task = epicTasks.get(key);
+        try {
+            String historyString = client.load(HISTORY_TASKS_KEY);
+            JsonArray jsonSimpleTasksArray = gson.fromJson(client.load(SIMPLE_TASKS_KEY), JsonArray.class);
+            if (jsonSimpleTasksArray != null && jsonSimpleTasksArray.size() != 0)
+                jsonSimpleTasksArray.asList().stream()
+                        .map(jsonElement -> gson.fromJson(jsonElement, SimpleTask.class))
+                        .forEach(simpleTask -> simpleTasks.put(simpleTask.getId(), simpleTask));
+            JsonArray jsonEpicTasksTasksArray = gson.fromJson(client.load(EPIC_TASKS_KEY), JsonArray.class);
+            if (jsonEpicTasksTasksArray != null && jsonEpicTasksTasksArray.size() != 0)
+                jsonEpicTasksTasksArray.asList().stream()
+                        .map(jsonElement -> gson.fromJson(jsonElement, Epic.class))
+                        .forEach(epic -> epicTasks.put(epic.getId(), epic));
+            JsonArray jsonSubtasksTasksArray = gson.fromJson(client.load(SUBTASKS_KEY), JsonArray.class);
+            if (jsonSubtasksTasksArray != null && jsonSubtasksTasksArray.size() != 0)
+                jsonSubtasksTasksArray.asList().stream()
+                        .map(jsonElement -> gson.fromJson(jsonElement, Subtask.class))
+                        .forEach(this::addSubtask);
+            if (!historyString.isEmpty()) {
+                List<Integer> history = historyFromString(historyString);
+                for (Integer key : history) {
+                    Task task = simpleTasks.get(key);
                     if (task == null) {
-                        task = subtasks.get(key);
+                        task = epicTasks.get(key);
+                        if (task == null) {
+                            task = subtasks.get(key);
+                        }
                     }
+                    historyManager.add(task);
                 }
-                historyManager.add(task);
             }
+        } catch (HttpRequestException e) {
+            System.out.println(e.getMessage());
         }
     }
 
     @Override
     protected void saveState() throws ManagerSaveException {
-        client.put(HISTORY_TASKS_KEY, gson.toJson(FileBackedTaskManager.historyToString(historyManager)));
-        client.put(SIMPLE_TASKS_KEY, gson.toJson(simpleTasks.values()));
-        client.put(EPIC_TASKS_KEY, gson.toJson(epicTasks.values()));
-        client.put(SUBTASKS_KEY, gson.toJson(subtasks.values()));
+        try {
+            client.put(HISTORY_TASKS_KEY, gson.toJson(FileBackedTaskManager.historyToString(historyManager)));
+            client.put(SIMPLE_TASKS_KEY, gson.toJson(simpleTasks.values()));
+            client.put(EPIC_TASKS_KEY, gson.toJson(epicTasks.values()));
+            client.put(SUBTASKS_KEY, gson.toJson(subtasks.values()));
+
+        } catch (HttpRequestException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
 }
